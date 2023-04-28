@@ -1,0 +1,100 @@
+:root {
+  --ui-background: #1a1a1a;
+  --ui-text: #fefefe;
+  --ui-accent: #77667d;
+  --ui-highlight: #faffb2;
+  --desk-background: #2b2b2b;
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+#workspace {
+  flex: 1;
+  overflow: hidden;
+  background-color: var(--desk-background);
+}
+
+.pixel {
+  display: inline;
+  background-color: var(--color, white);
+  width: 1rem;
+  height: 1rem;
+  z-index: 1;
+}
+
+.pixel:hover {
+  outline: 1px solid red;
+  z-index: 2;
+}
+
+.row {
+  display: flex;
+}
+
+.gutter {
+  background-color: darkgrey;
+}
+
+#controls {
+  background-color: var(--ui-background);
+  font-family: sans-serif;
+  color: var(--ui-text);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  flex: 0 0;
+}
+
+#tools {
+  display: flex;
+}
+
+.tool-select {
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.tool-select.selected {
+  background-color: var(--ui-accent);
+}
+
+.tool-select i {
+  margin: auto;
+}
+
+.tool-select:hover i {
+  color: var(--ui-highlight);
+}
+
+.palette {
+  display: flex;
+}
+
+.palette-color {
+  background-color: var(--color);
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+}
+
+.add-color {
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+  display: flex;
+  border: 1px solid var(--ui-text);
+  box-sizing: border-box;
+}
+
+.add-color span {
+  margin: auto;
+  font-size: xx-large;
+  font-weight: 900;
+}
