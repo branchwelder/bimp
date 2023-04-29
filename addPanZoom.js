@@ -31,13 +31,18 @@ export function addPanZoom(el, state) {
   }
 
   listen("pointerdown", "", (e) => {
+    if (state.tool !== "move") return;
     if (e.shiftKey || e.button === 2) {
       return;
     }
 
+    let currentTargetRect = e.currentTarget.getBoundingClientRect();
+    const offX = e.pageX - currentTargetRect.left,
+      offY = e.pageY - currentTargetRect.top;
+
     mousedown = true;
 
-    start = { x: e.offsetX - pointX, y: e.offsetY - pointY };
+    start = { x: offX - pointX, y: offY - pointY };
 
     if (e.detail === 2) {
     }
@@ -46,13 +51,21 @@ export function addPanZoom(el, state) {
   listen("pointermove", "", (e) => {
     if (!mousedown) return;
 
-    pointX = e.offsetX - start.x;
-    pointY = e.offsetY - start.y;
+    let currentTargetRect = e.currentTarget.getBoundingClientRect();
+    const offX = e.pageX - currentTargetRect.left,
+      offY = e.pageY - currentTargetRect.top;
+
+    pointX = offX - start.x;
+    pointY = offY - start.y;
 
     updateTransformGroups();
   });
 
   listen("pointerup", "", (evt) => {
+    mousedown = false;
+  });
+
+  listen("mouseleave", "#workspace", (e) => {
     mousedown = false;
   });
 
@@ -65,6 +78,7 @@ export function addPanZoom(el, state) {
 
       if (Math.sign(e.deltaY) < 0) scale *= 1.03;
       else scale /= 1.03;
+      scale = parseFloat(scale.toFixed(2));
 
       pointX = e.offsetX - xs * scale;
       pointY = e.offsetY - ys * scale;
@@ -89,7 +103,7 @@ export function addPanZoom(el, state) {
     const xScalingFactor = bb.width / xr;
     const yScalingFactor = bb.height / yr;
 
-    const scalingFactor = Math.min(xScalingFactor, yScalingFactor) * 0.9;
+    const scalingFactor = Math.min(xScalingFactor, yScalingFactor) * 0.95;
 
     scale = scalingFactor;
 
@@ -101,7 +115,7 @@ export function addPanZoom(el, state) {
     pointX = -center.x;
     pointY = -center.y;
 
-    updatePanZoom();
+    updateTransformGroups();
   }
 
   return {

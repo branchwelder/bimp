@@ -1,7 +1,6 @@
 import { render, html } from "lit-html";
 import { addPanZoom } from "./addPanZoom";
 import { addPixelInteraction } from "./addPixelInteraction";
-import { addPaletteInteraction } from "./addPaletteInteraction";
 
 let testBitmap = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -13,18 +12,34 @@ let testBitmap = [
   [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+  [0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+  [0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
 ];
 
-let palette = [{ hex: "#2976a3" }, { hex: "#d9c034" }];
+let palette = [
+  { r: 0, g: 0, b: 0, a: 0 },
+  { r: 71, g: 125, b: 188, a: 0.5 },
+  { r: 71, g: 0, b: 188, a: 1 },
+  { r: 71, g: 255, b: 188, a: 1 },
+];
 
 const GLOBAL_STATE = {
   bitmap: testBitmap,
   palette: palette,
-  color: 0,
+  currentColors: [0, 1],
+  pageBackground: "#ffffff",
   panZoom: null,
-  tool: "brush",
-  setPixelColor: function (row, col) {
-    this.bitmap[row][col] = this.color;
+  tool: "brush", // tool can be move, brush, zoom
+  setColor: function (row, col, color) {
+    this.bitmap[row][col] = color;
   },
   setCurrentColor: function (newColor) {
     this.color = newColor;
@@ -32,55 +47,126 @@ const GLOBAL_STATE = {
 };
 
 function renderBitmap(bitmap) {
-  return html`<div id="artwork" class="transform-group">
+  return html`<div
+    id="artwork"
+    style="--page-background: ${GLOBAL_STATE.pageBackground}"
+    class="transform-group unselectable"
+    draggable="false">
     ${bitmap.map(
       (row, rowIndex) =>
-        html`<div class="row">
-          ${row.map(
-            (pixel, colIndex) => html`<div
+        html`<div class="row" draggable="false">
+          ${row.map((pixel, colIndex) => {
+            let pData = GLOBAL_STATE.palette[pixel];
+            return html`<div
               class="pixel"
+              draggable="false"
               data-color=${pixel}
               data-row=${rowIndex}
               data-col=${colIndex}
-              style="--color: ${GLOBAL_STATE.palette[pixel].hex}"></div>`
-          )}
+              style="--r: ${pData.r}; --g: ${pData.g}; --b: ${pData.b}; --a: ${pData.a}"></div>`;
+          })}
         </div>`
     )}
   </div>`;
 }
 
-function updateHeight(e) {
-  console.log(e.target.value);
+function updateHeight(newHeight) {
+  const heightDiff = Number(newHeight) - GLOBAL_STATE.bitmap.length;
+
+  if (Math.sign(heightDiff) === -1) {
+    // remove rows
+    GLOBAL_STATE.bitmap.splice(heightDiff);
+  } else if (Math.sign(heightDiff) === 1) {
+    // create rows of transparent and add them
+
+    GLOBAL_STATE.bitmap = GLOBAL_STATE.bitmap.concat(
+      Array.from(Array(heightDiff), (_) =>
+        Array(GLOBAL_STATE.bitmap[0].length).fill(0)
+      )
+    );
+  }
 }
 
-function updateWidth(e) {
-  console.log(e.target.value);
-}
+function updateWidth(newWidth) {
+  const widthDiff = Number(newWidth) - GLOBAL_STATE.bitmap[0].length;
 
-function updateColor(e) {
-  console.log(e.target.value);
+  if (Math.sign(widthDiff) === -1) {
+    // remove cols
+    GLOBAL_STATE.bitmap.forEach((row) => row.splice(widthDiff));
+  } else if (Math.sign(widthDiff) === 1) {
+    // create cols of transparent and add them
+    let cols = new Array(widthDiff).fill(0);
+    GLOBAL_STATE.bitmap.forEach((row) => row.push(...cols));
+  }
 }
 
 function updateCurrentColor(e) {
-  console.log(e.target.dataset.color);
+  let colorData = e.target.dataset;
+
+  if (e.button == 0) {
+    GLOBAL_STATE.currentColors[0] = Number(colorData.color);
+  } else if (e.button == 2) {
+    GLOBAL_STATE.currentColors[1] = Number(colorData.color);
+  }
+}
+
+function swapPrimarySecondary(e) {
+  GLOBAL_STATE.currentColors.reverse();
+}
+
+function addColor(e) {
+  GLOBAL_STATE.palette.push({ hex: e.target.value });
+}
+
+function removeColor(paletteIndex) {
+  console.log(paletteIndex);
+}
+
+function editColor(e, index) {
+  GLOBAL_STATE.palette[index].hex = e.target.value;
 }
 
 function renderControls(state) {
-  return html`<div class="control">
-      <label>Dimensions</label>
-      <div id="dims">
+  return html`<div id="app-title">bitmap editor</div>
+    <div class="control">
+      <label>Size</label>
+      <div id="size">
+        <div
+          class="input-spinner"
+          @click=${() => updateWidth(state.bitmap[0].length - 1)}>
+          <i class="fa-solid fa-minus fa-2xs fa-fw"></i>
+        </div>
         <input
-          type="number"
-          name="height"
-          id="height"
-          @change=${updateHeight}
-          value=${state.bitmap.length} />
-        <input
-          type="number"
-          name="width"
+          type="text"
+          inputmode="numeric"
+          min="1"
+          step="1"
           id="width"
-          @change=${updateWidth}
+          @change=${(e) => updateWidth(e.target.value)}
           value=${state.bitmap[0].length} />
+        <div
+          class="input-spinner"
+          @click=${() => updateWidth(state.bitmap[0].length + 1)}>
+          <i class="fa-solid fa-plus fa-2xs fa-fw"></i>
+        </div>
+        <span>by</span>
+        <div
+          class="input-spinner"
+          @click=${() => updateHeight(state.bitmap.length - 1)}>
+          <i class="fa-solid fa-minus fa-2xs fa-fw"></i>
+        </div>
+        <input
+          type="text"
+          inputmode="numeric"
+          min="1"
+          step="1"
+          @change=${(e) => updateHeight(e.target.value)}
+          value=${state.bitmap.length} />
+        <div
+          class="input-spinner"
+          @click=${() => updateHeight(state.bitmap.length + 1)}>
+          <i class="fa-solid fa-plus fa-2xs fa-fw"></i>
+        </div>
       </div>
     </div>
     <div class="control">
@@ -92,9 +178,9 @@ function renderControls(state) {
           <i class="fa-solid fa-paintbrush"></i>
         </div>
         <div
-          class="tool-select ${state.tool == "hand" ? "selected" : ""}"
-          @click=${() => (state.tool = "hand")}>
-          <i class="fa-solid fa-hand"></i>
+          class="tool-select ${state.tool == "move" ? "selected" : ""}"
+          @click=${() => (state.tool = "move")}>
+          <i class="fa-solid fa-up-down-left-right"></i>
         </div>
         <div
           class="tool-select ${state.tool == "zoom" ? "selected" : ""}"
@@ -103,15 +189,6 @@ function renderControls(state) {
         </div>
       </div>
     </div>
-    <!-- <div class="control">
-      <label for="color">color</label>
-      <input
-        type="color"
-        name="color"
-        id="color"
-        @change=${updateColor}
-        value=${state.palette[state.color].hex} />
-    </div> -->
     <div class="control">
       <label for="palette">Palette</label>
       <div id="palette" class="palette">
@@ -119,14 +196,31 @@ function renderControls(state) {
           (color, index) =>
             html`<div
               class="palette-color"
-              @click=${updateCurrentColor}
               data-color=${index}
-              style="--color: ${color.hex}"></div>`
+              style="--r: ${color.r}; --g: ${color.g}; --b: ${color.b}; --a: ${color.a}"
+              @mousedown=${updateCurrentColor}
+              @contextmenu=${(e) => e.preventDefault()}>
+              <span class="remove-color" @click=${() => removeColor(index)}>
+                <i class="fa-solid fa-x fa-2xs"></i>
+              </span>
+              <span class="edit-color">
+                <i class="fa-solid fa-pen fa-fw fa-2xs"></i>
+              </span>
+              <!-- <input
+                  type="color"
+                  class="color-picker"
+                  @change=${(e) => editColor(e, index)} /> -->
+              <!-- </div> -->
+            </div>`
         )}
-        <div class="add-color"><span>+</span></div>
+        <div id="add-color">
+          <i class="fa-solid fa-plus"> </i>
+          <div class="color-popup">
+            <input type="color" class="color-picker" @change=${addColor} />
+          </div>
+        </div>
       </div>
     </div>
-
     <div class="control">
       <label>Export</label>
       <div id="formats">
@@ -134,7 +228,9 @@ function renderControls(state) {
         <button>JPG</button>
         <button>PNG</button>
       </div>
-    </div>`;
+    </div>
+    <!-- <div>${JSON.stringify(state.palette)}</div>
+    <div>${JSON.stringify(state.currentColors)}</div> --> `;
 }
 
 function view(state) {
@@ -153,17 +249,24 @@ function r() {
   window.requestAnimationFrame(r);
 }
 
+function centerArt() {
+  let art = document.getElementById("artwork");
+  const bb = art.getBoundingClientRect();
+  GLOBAL_STATE.panZoom.setScaleXY({
+    x: [bb.left, bb.right],
+    y: [bb.top, bb.bottom],
+  });
+}
+
 function init() {
   renderView(GLOBAL_STATE);
   let workspace = document.getElementById("workspace");
-  let palette = document.getElementById("palette");
 
-  // const panZoom = addPanZoom(workspace, GLOBAL_STATE);
-  // GLOBAL_STATE.panZoom = panZoom;
+  const panZoom = addPanZoom(workspace, GLOBAL_STATE);
+  GLOBAL_STATE.panZoom = panZoom;
 
   addPixelInteraction(workspace, GLOBAL_STATE);
-  addPaletteInteraction(palette, GLOBAL_STATE);
-
+  centerArt();
   window.requestAnimationFrame(r);
 }
 
