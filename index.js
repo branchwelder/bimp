@@ -3,16 +3,20 @@ import { addPanZoom } from "./addPanZoom";
 import { addPixelInteraction } from "./addPixelInteraction";
 import { colorPicker } from "./colorPicker";
 
+import { Pixels } from "./pixels";
+
 let testBitmap = [
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 2, 0, 2, 0, 0],
+  [0, 0, 0, 2, 2, 2, 0, 0],
+  [0, 0, 0, 2, 0, 2, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
 ];
+
+// let flat = [0, 0, 0, 0, 0, 0, 0, 0];
 
 let palette = [
   { r: 0, g: 0, b: 0, a: 0 },
@@ -26,6 +30,7 @@ let palette = [
 ];
 
 const GLOBAL_STATE = {
+  art: new Pixels(8, 8, { r: 0, g: 0, b: 0, a: 0 }),
   bitmap: testBitmap,
   palette: palette,
   panZoom: null,
@@ -123,7 +128,7 @@ function updateColor(e, state, index) {
 }
 
 function renderControls(state) {
-  return html`<div id="app-title">bitmap editor</div>
+  return html`<div id="app-title">mixel</div>
     <div class="control">
       <div class="control-header">
         <span>Size</span>
@@ -232,10 +237,21 @@ function renderControls(state) {
     </div>`;
 }
 
+// function view(state) {
+//   return html`<div class="container">
+//     <div id="controls">${renderControls(state)}</div>
+//     <div id="workspace">${renderBitmap(state)}</div>
+//   </div> `;
+// }
+
+function renderCanvas(state) {
+  return html`<canvas id="canvas" class="transform-group"></canvas>`;
+}
+
 function view(state) {
   return html`<div class="container">
     <div id="controls">${renderControls(state)}</div>
-    <div id="workspace">${renderBitmap(state)}</div>
+    <div id="workspace">${renderCanvas(state)}</div>
   </div> `;
 }
 
@@ -249,7 +265,7 @@ function r() {
 }
 
 function centerArt() {
-  let art = document.getElementById("bitmap-container");
+  let art = document.getElementById("canvas");
   const bb = art.getBoundingClientRect();
   GLOBAL_STATE.panZoom.setScaleXY({
     x: [bb.left, bb.right],
@@ -257,14 +273,31 @@ function centerArt() {
   });
 }
 
+function drawPicture(picture, canvas, scale) {
+  canvas.width = picture.width * scale;
+  canvas.height = picture.height * scale;
+  let cx = canvas.getContext("2d");
+
+  for (let y = 0; y < picture.height; y++) {
+    for (let x = 0; x < picture.width; x++) {
+      cx.fillStyle = picture.pixel(x, y);
+      cx.fillRect(x * scale, y * scale, scale, scale);
+    }
+  }
+}
+
 function init() {
   renderView(GLOBAL_STATE);
   let workspace = document.getElementById("workspace");
 
+  const canvas = document.getElementById("canvas");
+  const art = Pixels.empty(8, 8, { r: 50, g: 200, b: 200, a: 25 });
+
+  drawPicture(art, canvas, 100);
+
   const panZoom = addPanZoom(workspace, GLOBAL_STATE);
   GLOBAL_STATE.panZoom = panZoom;
-
-  addPixelInteraction(workspace, GLOBAL_STATE);
+  // addPixelInteraction(workspace, GLOBAL_STATE);
   centerArt();
   window.requestAnimationFrame(r);
 }

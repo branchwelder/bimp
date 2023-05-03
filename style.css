@@ -24,6 +24,13 @@
   user-select: none;
 }
 
+/* CANVAS */
+
+canvas {
+  image-rendering: pixelated;
+  box-shadow: 0 0 5px black;
+}
+
 /* BITMAP EDITOR */
 
 #workspace {

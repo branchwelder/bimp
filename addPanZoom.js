@@ -98,6 +98,7 @@ export function addPanZoom(el, state) {
 
   function setScaleXY(limits) {
     const bb = el.getBoundingClientRect();
+    console.log(bb);
     const xr = limits.x[1] - limits.x[0];
     const yr = limits.y[1] - limits.y[0];
     const xScalingFactor = bb.width / xr;
@@ -108,13 +109,16 @@ export function addPanZoom(el, state) {
     scale = scalingFactor;
 
     const center = {
-      x: ((limits.x[0] + limits.x[1]) / 2) * scalingFactor - bb.width / 2,
+      x:
+        ((limits.x[0] + limits.x[1]) / 2) * scalingFactor -
+        bb.width / 2 -
+        bb.left * scalingFactor,
       y: ((limits.y[0] + limits.y[1]) / 2) * scalingFactor - bb.height / 2,
     };
 
     pointX = -center.x;
     pointY = -center.y;
-
+    console.log(pointX, pointY);
     updateTransformGroups();
   }
 
