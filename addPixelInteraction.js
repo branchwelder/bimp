@@ -3,22 +3,26 @@ import { createListener } from "./utils.js";
 export function addPixelInteraction(workspace, state) {
   const listen = createListener(workspace);
 
-  let currentColor = 0;
   let painting = false;
 
   listen("mousedown", ".pixel", (e) => {
-    if (state.tool !== "brush") return;
-
     let pixelData = e.target.dataset;
-    painting = true;
 
-    if (e.button == 0) {
-      currentColor = state.currentColors[0];
-    } else if (e.button == 2) {
-      currentColor = state.currentColors[1];
+    let row = Number(pixelData.row);
+    let col = Number(pixelData.col);
+    let paletteIndex = Number(pixelData.color);
+
+    if (state.tool === "brush") {
+      painting = true;
+
+      if (e.button == 0) {
+        state.setColor(row, col);
+      }
+    } else if (state.tool === "flood") {
+      if (e.button == 0) {
+        state.flood(row, col, paletteIndex);
+      }
     }
-
-    state.setColor(pixelData.row, pixelData.col, currentColor);
   });
 
   listen("mouseover", ".pixel", (e) => {
@@ -27,7 +31,7 @@ export function addPixelInteraction(workspace, state) {
 
     let pixelData = e.target.dataset;
 
-    state.setColor(pixelData.row, pixelData.col, currentColor);
+    state.setColor(pixelData.row, pixelData.col);
   });
 
   listen("mouseup", "", (e) => {

@@ -11,9 +11,9 @@ export function addPanZoom(el, state) {
   let start = { x: 0, y: 0 };
 
   function setTransform(el) {
-    el.style.transformOrigin = `${0}px ${0}px`;
-    el.style.transform =
-      "translate(" + pointX + "px, " + pointY + "px) scale(" + scale + ")";
+    el.style.transform = `translate(${Math.round(pointX)}px, ${Math.round(
+      pointY
+    )}px) scale(${scale.toFixed(2)})`;
   }
 
   function updateTransformGroups() {
@@ -78,7 +78,7 @@ export function addPanZoom(el, state) {
 
       if (Math.sign(e.deltaY) < 0) scale *= 1.03;
       else scale /= 1.03;
-      scale = parseFloat(scale.toFixed(2));
+      // scale = parseFloat(scale.toFixed(2));
 
       pointX = e.offsetX - xs * scale;
       pointY = e.offsetY - ys * scale;
