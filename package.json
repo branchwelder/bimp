@@ -3,9 +3,11 @@
     "dev": "vite",
     "host": "vite --host",
     "build": "vite build",
-    "preview": "vite build && vite preview"
+    "preview": "vite build && vite preview",
+    "deploy": "vite build --base=/bimp/ && gh-pages -d dist"
   },
   "dependencies": {
+    "gh-pages": "^5.0.0",
     "lit-html": "^2.7.3",
     "vite": "^4.3.3"
   }

@@ -32,20 +32,13 @@
   background-color: var(--desk-background);
 }
 
-#bitmap-container {
+/* CANVAS */
+
+canvas {
+  image-rendering: pixelated;
   box-shadow: 0 0 5px black;
   background: var(--transparency);
-  overflow: hidden;
-  display: grid;
-}
-
-.pixel {
-  aspect-ratio: 1;
-  margin: 0;
-  background-color: rgb(
-    calc(var(--r) * 100%) calc(var(--g) * 100%) calc(var(--b) * 100%) / var(--a)
-  );
-  background-clip: border-box;
+  outline: 1px solid black;
 }
 
 /* CONTROL PANEL */

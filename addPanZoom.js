@@ -8,12 +8,11 @@ export function addPanZoom(el, state) {
   let scale = 1;
   let pointX = 0;
   let pointY = 0;
-  let start = { x: 0, y: 0 };
+  let dragStart = { x: 0, y: 0 };
 
-  function setTransform(el) {
-    el.style.transform = `translate(${Math.round(pointX)}px, ${Math.round(
-      pointY
-    )}px) scale(${scale.toFixed(2)})`;
+  function setTransform(elem) {
+    elem.style.transformOrigin = `0px 0px`;
+    elem.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
   }
 
   function updateTransformGroups() {
@@ -31,7 +30,8 @@ export function addPanZoom(el, state) {
   }
 
   listen("pointerdown", "", (e) => {
-    if (state.tool !== "move") return;
+    if (state.activeTool !== "move" && e.target.id !== "workspace") return;
+
     if (e.shiftKey || e.button === 2) {
       return;
     }
@@ -42,10 +42,7 @@ export function addPanZoom(el, state) {
 
     mousedown = true;
 
-    start = { x: offX - pointX, y: offY - pointY };
-
-    if (e.detail === 2) {
-    }
+    dragStart = { x: offX - pointX, y: offY - pointY };
   });
 
   listen("pointermove", "", (e) => {
@@ -55,8 +52,8 @@ export function addPanZoom(el, state) {
     const offX = e.pageX - currentTargetRect.left,
       offY = e.pageY - currentTargetRect.top;
 
-    pointX = offX - start.x;
-    pointY = offY - start.y;
+    pointX = offX - dragStart.x;
+    pointY = offY - dragStart.y;
 
     updateTransformGroups();
   });
@@ -78,7 +75,6 @@ export function addPanZoom(el, state) {
 
       if (Math.sign(e.deltaY) < 0) scale *= 1.03;
       else scale /= 1.03;
-      // scale = parseFloat(scale.toFixed(2));
 
       pointX = e.offsetX - xs * scale;
       pointY = e.offsetY - ys * scale;
@@ -97,19 +93,25 @@ export function addPanZoom(el, state) {
   }
 
   function setScaleXY(limits) {
-    const bb = el.getBoundingClientRect();
-    const xr = limits.x[1] - limits.x[0];
-    const yr = limits.y[1] - limits.y[0];
-    const xScalingFactor = bb.width / xr;
-    const yScalingFactor = bb.height / yr;
+    const workspaceBB = el.getBoundingClientRect();
+
+    const limitsWidth = limits.x[1] - limits.x[0];
+    const limitsHeight = limits.y[1] - limits.y[0];
+
+    const xScalingFactor = workspaceBB.width / limitsWidth;
+    const yScalingFactor = workspaceBB.height / limitsHeight;
 
     const scalingFactor = Math.min(xScalingFactor, yScalingFactor) * 0.95;
 
     scale = scalingFactor;
 
     const center = {
-      x: ((limits.x[0] + limits.x[1]) / 2) * scalingFactor - bb.width / 2,
-      y: ((limits.y[0] + limits.y[1]) / 2) * scalingFactor - bb.height / 2,
+      x:
+        ((limits.x[0] + limits.x[1]) / 2) * scalingFactor -
+        workspaceBB.width / 2,
+      y:
+        ((limits.y[0] + limits.y[1]) / 2) * scalingFactor -
+        workspaceBB.height / 2,
     };
 
     pointX = -center.x;
