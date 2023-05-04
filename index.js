@@ -1,116 +1,65 @@
 import { render, html, nothing } from "lit-html";
 import { addPanZoom } from "./addPanZoom";
-import { addPixelInteraction } from "./addPixelInteraction";
 import { colorPicker } from "./colorPicker";
+import { addCanvasInteraction } from "./addCanvasInteraction";
+import { drawPicture } from "./utils";
+import { actions } from "./actions";
 
-import { Pixels } from "./pixels";
-
-let testBitmap = [
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 2, 0, 2, 0, 0],
-  [0, 0, 0, 2, 2, 2, 0, 0],
-  [0, 0, 0, 2, 0, 2, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-];
-
-// let flat = [0, 0, 0, 0, 0, 0, 0, 0];
-
-let palette = [
-  { r: 0, g: 0, b: 0, a: 0 },
-  { r: 0, g: 0, b: 0, a: 1 },
-  { r: 1, g: 0, b: 0, a: 1 },
-  { r: 0, g: 1, b: 0, a: 1 },
-  { r: 0, g: 0, b: 1, a: 1 },
-  { r: 1, g: 1, b: 0, a: 1 },
-  { r: 1, g: 0, b: 1, a: 1 },
-  { r: 0, g: 1, b: 1, a: 1 },
-];
+import { Bimp } from "./bimp";
 
 const GLOBAL_STATE = {
-  art: new Pixels(8, 8, { r: 0, g: 0, b: 0, a: 0 }),
-  bitmap: testBitmap,
-  palette: palette,
-  panZoom: null,
-  tool: "brush", // tool can be move, brush, flood
+  activeTool: "brush", // tool can be move, brush, flood
   activeColor: 0, // palette index of the currently active color
+  bitmap: Bimp.empty(8, 8, 4),
+  panZoom: null,
+  canvas: null,
+  pixelScale: 30,
+  actions: actions,
+  history: [],
 
-  setColor: function (row, col) {
-    this.bitmap[row][col] = this.activeColor;
+  syncCanvas: function () {
+    drawPicture(this.bitmap, this.canvas, this.pixelScale);
   },
-
-  flood: function (sr, sc, paletteIndex) {
-    // Condition for checking out of bounds
-    if (
-      sr < 0 ||
-      sr >= this.bitmap.length ||
-      sc < 0 ||
-      sc >= this.bitmap[0].length
-    )
-      return;
-
-    if (this.bitmap[sr][sc] != paletteIndex) return;
-
-    if (this.bitmap[sr][sc] == this.activeColor) return;
-
-    this.bitmap[sr][sc] = this.activeColor;
-    this.flood(sr - 1, sc, paletteIndex); // left
-    this.flood(sr + 1, sc, paletteIndex); // right
-    this.flood(sr, sc + 1, paletteIndex); // top
-    this.flood(sr, sc - 1, paletteIndex); // bottom
+  updateState: function (changes) {
+    Object.assign(this, changes);
+  },
+  doAction: function (action) {
+    this.updateState(this.actions[action](this));
+    this.syncCanvas();
+  },
+  applyTool: function (pos) {
+    this.updateState({
+      bitmap: this.bitmap[this.activeTool](pos, this.activeColor),
+    });
+    this.syncCanvas();
   },
 };
 
-function renderBitmap(state) {
-  return html`<div
-    id="bitmap-container"
-    class="transform-group unselectable"
-    style="grid-template-columns: repeat(${state.bitmap[0]
-      .length}, 1fr); grid-template-rows: repeat(${state.bitmap.length}, 1fr)">
-    ${state.bitmap.map((row, rowIndex) =>
-      row.map((paletteIndex, colIndex) => {
-        let pData = state.palette[paletteIndex];
-        return html`<div
-          class="pixel"
-          data-color=${paletteIndex}
-          data-row=${rowIndex}
-          data-col=${colIndex}
-          style="--r: ${pData.r}; --g: ${pData.g}; --b: ${pData.b}; --a: ${pData.a}"></div>`;
-      })
-    )}
-  </div>`;
-}
-
 function updateHeight(state, newHeight) {
-  const heightDiff = Number(newHeight) - state.bitmap.length;
-
-  if (Math.sign(heightDiff) === -1) {
-    // remove rows
-    state.bitmap.splice(heightDiff);
-  } else if (Math.sign(heightDiff) === 1) {
-    // create rows of transparent and add them
-
-    state.bitmap = state.bitmap.concat(
-      Array.from(Array(heightDiff), (_) =>
-        Array(state.bitmap[0].length).fill(0)
-      )
-    );
-  }
+  // const heightDiff = Number(newHeight) - state.bitmap.height;
+  // if (Math.sign(heightDiff) === -1) {
+  //   // remove rows
+  //   state.bitmap.splice(heightDiff);
+  // } else if (Math.sign(heightDiff) === 1) {
+  //   // create rows of transparent and add them
+  //   state.bitmap = state.bitmap.concat(
+  //     Array.from(Array(heightDiff), (_) =>
+  //       Array(state.bitmap[0].length).fill(0)
+  //     )
+  //   );
+  // }
 }
 
 function updateWidth(state, newWidth) {
-  const widthDiff = Number(newWidth) - state.bitmap[0].length;
-
-  if (Math.sign(widthDiff) === -1) {
-    // remove cols
-    state.bitmap.forEach((row) => row.splice(widthDiff));
-  } else if (Math.sign(widthDiff) === 1) {
-    // create cols of transparent and add them
-    let cols = new Array(widthDiff).fill(0);
-    state.bitmap.forEach((row) => row.push(...cols));
-  }
+  // const widthDiff = Number(newWidth) - state.bitmap[0].length;
+  // if (Math.sign(widthDiff) === -1) {
+  //   // remove cols
+  //   state.bitmap.forEach((row) => row.splice(widthDiff));
+  // } else if (Math.sign(widthDiff) === 1) {
+  //   // create cols of transparent and add them
+  //   let cols = new Array(widthDiff).fill(0);
+  //   state.bitmap.forEach((row) => row.push(...cols));
+  // }
 }
 
 function setActiveColor(paletteIndex, state) {
@@ -129,6 +78,7 @@ function updateColor(e, state, index) {
 
 function renderControls(state) {
   return html`<div id="app-title">mixel</div>
+    <button @click=${() => state.doAction("undo")}>Undo</button>
     <div class="control">
       <div class="control-header">
         <span>Size</span>
@@ -136,7 +86,7 @@ function renderControls(state) {
       <div id="size">
         <div
           class="input-spinner"
-          @click=${() => updateWidth(state, state.bitmap[0].length - 1)}>
+          @click=${() => updateWidth(state, state.bitmap.width - 1)}>
           <i class="fa-solid fa-minus fa-2xs fa-fw"></i>
         </div>
         <input
@@ -146,16 +96,16 @@ function renderControls(state) {
           step="1"
           id="width"
           @change=${(e) => updateWidth(state, e.target.value)}
-          value=${state.bitmap[0].length} />
+          value=${state.bitmap.width} />
         <div
           class="input-spinner"
-          @click=${() => updateWidth(state, state.bitmap[0].length + 1)}>
+          @click=${() => updateWidth(state, state.bitmap.width + 1)}>
           <i class="fa-solid fa-plus fa-2xs fa-fw"></i>
         </div>
         <span>by</span>
         <div
           class="input-spinner"
-          @click=${() => updateHeight(state, state.bitmap.length - 1)}>
+          @click=${() => updateHeight(state, state.bitmap.height - 1)}>
           <i class="fa-solid fa-minus fa-2xs fa-fw"></i>
         </div>
         <input
@@ -164,10 +114,10 @@ function renderControls(state) {
           min="1"
           step="1"
           @change=${(e) => updateHeight(state, e.target.value)}
-          value=${state.bitmap.length} />
+          value=${state.bitmap.height} />
         <div
           class="input-spinner"
-          @click=${() => updateHeight(state, state.bitmap.length + 1)}>
+          @click=${() => updateHeight(state, state.bitmap.height + 1)}>
           <i class="fa-solid fa-plus fa-2xs fa-fw"></i>
         </div>
       </div>
@@ -178,18 +128,18 @@ function renderControls(state) {
       </div>
       <div id="tools">
         <div
-          class="tool-select ${state.tool == "brush" ? "selected" : ""}"
-          @click=${() => (state.tool = "brush")}>
+          class="tool-select ${state.activeTool == "brush" ? "selected" : ""}"
+          @click=${() => (state.activeTool = "brush")}>
           <i class="fa-solid fa-paintbrush"></i>
         </div>
         <div
-          class="tool-select ${state.tool == "move" ? "selected" : ""}"
-          @click=${() => (state.tool = "move")}>
+          class="tool-select ${state.activeTool == "move" ? "selected" : ""}"
+          @click=${() => (state.activeTool = "move")}>
           <i class="fa-solid fa-up-down-left-right"></i>
         </div>
         <div
-          class="tool-select ${state.tool == "flood" ? "selected" : ""}"
-          @click=${() => (state.tool = "flood")}>
+          class="tool-select ${state.activeTool == "flood" ? "selected" : ""}"
+          @click=${() => (state.activeTool = "flood")}>
           <i class="fa-solid fa-fill-drip"></i>
         </div>
       </div>
@@ -202,7 +152,7 @@ function renderControls(state) {
         </span>
       </div>
       <div id="palette" class="palette">
-        ${state.palette.map(
+        ${state.bitmap.palette.map(
           (color, paletteIndex) =>
             html`<div
               class="palette-color ${paletteIndex === state.activeColor
@@ -217,7 +167,7 @@ function renderControls(state) {
                     <a class="edit-button" href="#">
                       <i class="fa-solid fa-pen fa-fw fa-2xs"></i>
                     </a>
-                    ${colorPicker(state.palette[paletteIndex], (e) =>
+                    ${colorPicker(state.bitmap.palette[paletteIndex], (e) =>
                       updateColor(e, state, paletteIndex)
                     )}
                   </div>`}
@@ -236,13 +186,6 @@ function renderControls(state) {
       </div>
     </div>`;
 }
-
-// function view(state) {
-//   return html`<div class="container">
-//     <div id="controls">${renderControls(state)}</div>
-//     <div id="workspace">${renderBitmap(state)}</div>
-//   </div> `;
-// }
 
 function renderCanvas(state) {
   return html`<canvas id="canvas" class="transform-group"></canvas>`;
@@ -264,42 +207,27 @@ function r() {
   window.requestAnimationFrame(r);
 }
 
-function centerArt() {
-  let art = document.getElementById("canvas");
-  const bb = art.getBoundingClientRect();
+function centerCanvas(state) {
+  const bb = state.canvas.getBoundingClientRect();
   GLOBAL_STATE.panZoom.setScaleXY({
     x: [bb.left, bb.right],
     y: [bb.top, bb.bottom],
   });
 }
 
-function drawPicture(picture, canvas, scale) {
-  canvas.width = picture.width * scale;
-  canvas.height = picture.height * scale;
-  let cx = canvas.getContext("2d");
-
-  for (let y = 0; y < picture.height; y++) {
-    for (let x = 0; x < picture.width; x++) {
-      cx.fillStyle = picture.pixel(x, y);
-      cx.fillRect(x * scale, y * scale, scale, scale);
-    }
-  }
-}
-
-function init() {
-  renderView(GLOBAL_STATE);
+function init(state) {
+  renderView(state);
   let workspace = document.getElementById("workspace");
 
-  const canvas = document.getElementById("canvas");
-  const art = Pixels.empty(8, 8, { r: 50, g: 200, b: 200, a: 25 });
+  state.canvas = document.getElementById("canvas");
+  state.panZoom = addPanZoom(workspace, state);
 
-  drawPicture(art, canvas, 100);
+  addCanvasInteraction(canvas, state);
 
-  const panZoom = addPanZoom(workspace, GLOBAL_STATE);
-  GLOBAL_STATE.panZoom = panZoom;
-  // addPixelInteraction(workspace, GLOBAL_STATE);
-  centerArt();
+  drawPicture(state.bitmap, state.canvas, state.pixelScale);
+
+  centerCanvas(state);
   window.requestAnimationFrame(r);
 }
 
-init();
+init(GLOBAL_STATE);
