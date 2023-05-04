@@ -1,20 +1,8 @@
-const defaultPalette = [
-  { r: 0, g: 0, b: 0, a: 0 },
-  { r: 0, g: 0, b: 0, a: 1 },
-  { r: 1, g: 0, b: 0, a: 1 },
-  { r: 0, g: 1, b: 0, a: 1 },
-  { r: 0, g: 0, b: 1, a: 1 },
-  { r: 1, g: 1, b: 0, a: 1 },
-  { r: 1, g: 0, b: 1, a: 1 },
-  { r: 0, g: 1, b: 1, a: 1 },
-];
-
 export class Bimp {
   constructor(width, height, pixels) {
     this.width = width;
     this.height = height;
     this.pixels = pixels;
-    this.palette = defaultPalette;
   }
 
   static empty(width, height, color) {
@@ -22,15 +10,22 @@ export class Bimp {
     return new Bimp(width, height, pixels);
   }
 
-  pixel(x, y) {
-    return this.palette[this.pixels[x + y * this.width]];
+  resize(width, height) {
+    let resized = [];
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        if (y >= this.height || x >= this.width) {
+          resized.push(0);
+        } else {
+          resized.push(this.pixel(x, y));
+        }
+      }
+    }
+    return new Bimp(width, height, resized);
   }
 
-  pixelRGBA(x, y) {
-    const pixel = this.pixel(x, y);
-    return `rgb(${pixel.r * 255} ${pixel.g * 255} ${pixel.b * 255} / ${
-      pixel.a * 255
-    })`;
+  pixel(x, y) {
+    return this.pixels[x + y * this.width];
   }
 
   draw(changes) {

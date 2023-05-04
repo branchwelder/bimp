@@ -1,14 +1,3 @@
-function arraysEqual(a, b) {
-  if (a === b) return true;
-  if (a == null || b == null) return false;
-  if (a.length !== b.length) return false;
-
-  for (var i = 0; i < a.length; ++i) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
-}
-
 export const actions = {
   undo: (state) => {
     if (state.history.length === 0) {
@@ -20,14 +9,30 @@ export const actions = {
     };
   },
 
-  setActiveColor: (state) => {
-    console.log("COLOR");
+  setActiveColor: (state, newColor) => {
+    return { activeColor: newColor };
+  },
+
+  setActiveTool: (state, newTool) => {
+    return { activeTool: newTool };
   },
 
   snapshot: (state) => {
-    // if (state.history.length) {
-    //   if (arraysEqual(state.history[0].pixels, state.bitmap.pixels)) return {};
-    // }
     return { history: [state.bitmap, ...state.history] };
+  },
+
+  resize: (state, dims) => {
+    return {
+      bitmap: state.bitmap.resize(dims[0], dims[1]),
+      history: [state.bitmap, ...state.history],
+    };
+  },
+
+  centerCanvas: (state) => {
+    state.panZoom.setScaleXY({
+      x: [0, state.bitmap.width * state.pixelScale],
+      y: [0, state.bitmap.height * state.pixelScale],
+    });
+    return {};
   },
 };

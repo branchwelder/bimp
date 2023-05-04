@@ -30,7 +30,7 @@ export function addPanZoom(el, state) {
   }
 
   listen("pointerdown", "", (e) => {
-    if (state.tool !== "move" && e.target.id !== "workspace") return;
+    if (state.activeTool !== "move" && e.target.id !== "workspace") return;
 
     if (e.shiftKey || e.button === 2) {
       return;
@@ -107,10 +107,10 @@ export function addPanZoom(el, state) {
 
     const center = {
       x:
-        ((limits.x[0] + limits.x[1]) / 2 - workspaceBB.left) * scalingFactor -
+        ((limits.x[0] + limits.x[1]) / 2) * scalingFactor -
         workspaceBB.width / 2,
       y:
-        ((limits.y[0] + limits.y[1]) / 2 - workspaceBB.top) * scalingFactor -
+        ((limits.y[0] + limits.y[1]) / 2) * scalingFactor -
         workspaceBB.height / 2,
     };
 

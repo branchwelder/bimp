@@ -2,29 +2,42 @@ import { render, html, nothing } from "lit-html";
 import { addPanZoom } from "./addPanZoom";
 import { colorPicker } from "./colorPicker";
 import { addCanvasInteraction } from "./addCanvasInteraction";
-import { drawPicture } from "./utils";
 import { actions } from "./actions";
+import { drawPicture } from "./utils";
 
 import { Bimp } from "./bimp";
+
+const defaultPalette = [
+  { r: 0, g: 0, b: 0, a: 0 },
+  { r: 0, g: 0, b: 0, a: 1 },
+  { r: 1, g: 0, b: 0, a: 1 },
+  { r: 0, g: 1, b: 0, a: 1 },
+  { r: 0, g: 0, b: 1, a: 1 },
+  { r: 1, g: 1, b: 0, a: 1 },
+  { r: 1, g: 0, b: 1, a: 1 },
+  { r: 0, g: 1, b: 1, a: 1 },
+];
 
 const GLOBAL_STATE = {
   activeTool: "brush", // tool can be move, brush, flood
   activeColor: 0, // palette index of the currently active color
-  bitmap: Bimp.empty(8, 8, 4),
+  bitmap: Bimp.empty(32, 32, 0),
   panZoom: null,
   canvas: null,
   pixelScale: 30,
+  palette: defaultPalette,
   actions: actions,
   history: [],
 
   syncCanvas: function () {
-    drawPicture(this.bitmap, this.canvas, this.pixelScale);
+    drawPicture(this);
   },
   updateState: function (changes) {
     Object.assign(this, changes);
   },
-  doAction: function (action) {
-    this.updateState(this.actions[action](this));
+  doAction: async function (action, ...args) {
+    const stateChanges = this.actions[action](this, args);
+    this.updateState(stateChanges);
     this.syncCanvas();
   },
   applyTool: function (pos) {
@@ -34,33 +47,6 @@ const GLOBAL_STATE = {
     this.syncCanvas();
   },
 };
-
-function updateHeight(state, newHeight) {
-  // const heightDiff = Number(newHeight) - state.bitmap.height;
-  // if (Math.sign(heightDiff) === -1) {
-  //   // remove rows
-  //   state.bitmap.splice(heightDiff);
-  // } else if (Math.sign(heightDiff) === 1) {
-  //   // create rows of transparent and add them
-  //   state.bitmap = state.bitmap.concat(
-  //     Array.from(Array(heightDiff), (_) =>
-  //       Array(state.bitmap[0].length).fill(0)
-  //     )
-  //   );
-  // }
-}
-
-function updateWidth(state, newWidth) {
-  // const widthDiff = Number(newWidth) - state.bitmap[0].length;
-  // if (Math.sign(widthDiff) === -1) {
-  //   // remove cols
-  //   state.bitmap.forEach((row) => row.splice(widthDiff));
-  // } else if (Math.sign(widthDiff) === 1) {
-  //   // create cols of transparent and add them
-  //   let cols = new Array(widthDiff).fill(0);
-  //   state.bitmap.forEach((row) => row.push(...cols));
-  // }
-}
 
 function setActiveColor(paletteIndex, state) {
   state.activeColor = Number(paletteIndex);
@@ -74,11 +60,14 @@ function updateColor(e, state, index) {
   const component = e.target.dataset.component;
 
   state.palette[index][component] = Number(e.target.value);
+  drawPicture(state);
 }
 
 function renderControls(state) {
-  return html`<div id="app-title">mixel</div>
+  return html`<div id="app-title">bimp</div>
     <button @click=${() => state.doAction("undo")}>Undo</button>
+    <button @click=${() => state.doAction("centerCanvas")}>Center</button>
+
     <div class="control">
       <div class="control-header">
         <span>Size</span>
@@ -86,7 +75,12 @@ function renderControls(state) {
       <div id="size">
         <div
           class="input-spinner"
-          @click=${() => updateWidth(state, state.bitmap.width - 1)}>
+          @click=${() =>
+            state.doAction(
+              "resize",
+              state.bitmap.width - 1,
+              state.bitmap.height
+            )}>
           <i class="fa-solid fa-minus fa-2xs fa-fw"></i>
         </div>
         <input
@@ -95,17 +89,32 @@ function renderControls(state) {
           min="1"
           step="1"
           id="width"
-          @change=${(e) => updateWidth(state, e.target.value)}
+          @change=${(e) =>
+            state.doAction(
+              "resize",
+              Number(e.target.value),
+              state.bitmap.height
+            )}
           value=${state.bitmap.width} />
         <div
           class="input-spinner"
-          @click=${() => updateWidth(state, state.bitmap.width + 1)}>
+          @click=${() =>
+            state.doAction(
+              "resize",
+              state.bitmap.width + 1,
+              state.bitmap.height
+            )}>
           <i class="fa-solid fa-plus fa-2xs fa-fw"></i>
         </div>
         <span>by</span>
         <div
           class="input-spinner"
-          @click=${() => updateHeight(state, state.bitmap.height - 1)}>
+          @click=${() =>
+            state.doAction(
+              "resize",
+              state.bitmap.width,
+              state.bitmap.height - 1
+            )}>
           <i class="fa-solid fa-minus fa-2xs fa-fw"></i>
         </div>
         <input
@@ -113,11 +122,21 @@ function renderControls(state) {
           inputmode="numeric"
           min="1"
           step="1"
-          @change=${(e) => updateHeight(state, e.target.value)}
+          @change=${(e) =>
+            state.doAction(
+              "resize",
+              state.bitmap.width,
+              Number(e.target.value)
+            )}
           value=${state.bitmap.height} />
         <div
           class="input-spinner"
-          @click=${() => updateHeight(state, state.bitmap.height + 1)}>
+          @click=${() =>
+            state.doAction(
+              "resize",
+              state.bitmap.width,
+              state.bitmap.height + 1
+            )}>
           <i class="fa-solid fa-plus fa-2xs fa-fw"></i>
         </div>
       </div>
@@ -152,7 +171,7 @@ function renderControls(state) {
         </span>
       </div>
       <div id="palette" class="palette">
-        ${state.bitmap.palette.map(
+        ${state.palette.map(
           (color, paletteIndex) =>
             html`<div
               class="palette-color ${paletteIndex === state.activeColor
@@ -167,25 +186,26 @@ function renderControls(state) {
                     <a class="edit-button" href="#">
                       <i class="fa-solid fa-pen fa-fw fa-2xs"></i>
                     </a>
-                    ${colorPicker(state.bitmap.palette[paletteIndex], (e) =>
+                    ${colorPicker(state.palette[paletteIndex], (e) =>
                       updateColor(e, state, paletteIndex)
                     )}
                   </div>`}
             </div>`
         )}
       </div>
-    </div>
-    <div class="control">
-      <div class="control-header">
-        <span>Export</span>
-      </div>
-      <div id="formats">
-        <button>BMP</button>
-        <button>JPG</button>
-        <button>PNG</button>
-      </div>
     </div>`;
 }
+
+// <div class='control'>
+//   <div class='control-header'>
+//     <span>Export</span>
+//   </div>
+//   <div id='formats'>
+//     <button>BMP</button>
+//     <button>JPG</button>
+//     <button>PNG</button>
+//   </div>
+// </div>;
 
 function renderCanvas(state) {
   return html`<canvas id="canvas" class="transform-group"></canvas>`;
@@ -207,14 +227,6 @@ function r() {
   window.requestAnimationFrame(r);
 }
 
-function centerCanvas(state) {
-  const bb = state.canvas.getBoundingClientRect();
-  GLOBAL_STATE.panZoom.setScaleXY({
-    x: [bb.left, bb.right],
-    y: [bb.top, bb.bottom],
-  });
-}
-
 function init(state) {
   renderView(state);
   let workspace = document.getElementById("workspace");
@@ -224,9 +236,9 @@ function init(state) {
 
   addCanvasInteraction(canvas, state);
 
-  drawPicture(state.bitmap, state.canvas, state.pixelScale);
+  drawPicture(state);
 
-  centerCanvas(state);
+  state.doAction("centerCanvas");
   window.requestAnimationFrame(r);
 }
 
