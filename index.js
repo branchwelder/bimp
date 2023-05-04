@@ -20,7 +20,7 @@ const defaultPalette = [
 
 const GLOBAL_STATE = {
   activeTool: "brush", // tool can be move, brush, flood
-  activeColor: 0, // palette index of the currently active color
+  activeColor: 1, // palette index of the currently active color
   bitmap: Bimp.empty(32, 32, 0),
   panZoom: null,
   canvas: null,
