@@ -1,3 +1,5 @@
+import { CanvasToBMP } from "./lib/canvasToBmp";
+
 const trigger = (e) => e.composedPath()[0];
 const matchesTrigger = (e, selectorString) =>
   trigger(e).matches(selectorString);
@@ -15,26 +17,60 @@ export const createListener =
     );
   };
 
-function pixelRGBA(state, x, y) {
-  const pixel = state.palette[state.bitmap.pixel(x, y)];
-  return `rgb(${pixel.r * 255} ${pixel.g * 255} ${pixel.b * 255} / ${pixel.a})`;
-}
+export const bitmapToCanvas = (bitmap, palette) => {
+  const imageData = bitmap.toImageData(palette);
 
-function drawPixel({ x, y }, canvas, scale, color) {
-  let cx = canvas.getContext("2d");
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
 
-  cx.fillStyle = color;
-  cx.fillRect(x * scale, y * scale, scale, scale);
-}
+  canvas.width = bitmap.width;
+  canvas.height = bitmap.height;
 
-export function drawPicture(state) {
-  state.canvas.width = state.bitmap.width * state.pixelScale;
-  state.canvas.height = state.bitmap.height * state.pixelScale;
+  ctx.putImageData(imageData, 0, 0);
+  return canvas;
+};
 
-  for (let y = 0; y < state.bitmap.height; y++) {
-    for (let x = 0; x < state.bitmap.width; x++) {
-      const cssColor = pixelRGBA(state, x, y);
-      drawPixel({ x, y }, state.canvas, state.pixelScale, cssColor);
-    }
-  }
-}
+export const exportJPG = (bitmap, palette) => {
+  const canvas = bitmapToCanvas(bitmap, palette);
+  return canvas.toDataURL("image/jpeg", 1.0);
+};
+
+export const exportBMP = (bitmap, palette) => {
+  const canvas = bitmapToCanvas(bitmap, palette);
+  return CanvasToBMP.toDataURL(canvas);
+};
+
+export const exportPNG = (bitmap, palette) => {
+  const canvas = bitmapToCanvas(bitmap, palette);
+  return canvas.toDataURL("image/png");
+};
+
+export const exportJSON = (bitmap, palette) => {
+  const jsonObj = {
+    pixels: bitmap.pixels,
+    width: bitmap.width,
+    height: bitmap.height,
+    palette: palette,
+  };
+
+  return (
+    "data:text/json;charset=utf-8," +
+    encodeURIComponent(JSON.stringify(jsonObj))
+  );
+};
+
+export const exportTXT = (bitmap, palette) => {
+  const text = bitmap
+    .make2d()
+    .map((row) => row.join(""))
+    .join("\n");
+  return "data:text/plain;charset=utf-8," + encodeURIComponent(text);
+};
+
+export const exporters = {
+  txt: exportTXT,
+  bmp: exportBMP,
+  json: exportJSON,
+  png: exportPNG,
+  jpg: exportJPG,
+};

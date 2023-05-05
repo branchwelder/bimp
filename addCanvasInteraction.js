@@ -1,6 +1,6 @@
 import { createListener } from "./utils.js";
 
-export function addCanvasInteraction(canvas, state) {
+export function addCanvasInteraction(canvas, state, dispatch) {
   const listen = createListener(canvas);
 
   let mousedown = false;
@@ -19,7 +19,7 @@ export function addCanvasInteraction(canvas, state) {
   }
 
   function begin() {
-    state.doAction("snapshot");
+    dispatch("snapshot");
     mousedown = true;
   }
 
@@ -31,7 +31,7 @@ export function addCanvasInteraction(canvas, state) {
     if (state.activeTool === "move") return;
     begin();
     pos = getPixelCoordinates(e);
-    state.applyTool(pos);
+    dispatch("applyTool", pos);
   });
 
   listen("pointermove", "", (e) => {
@@ -40,7 +40,8 @@ export function addCanvasInteraction(canvas, state) {
 
     if (newPos.x == pos.x && newPos.y == pos.y) return; // return if still inside pixel
     pos = newPos;
-    state.applyTool(pos);
+
+    dispatch("applyTool", pos);
   });
 
   listen("pointerleave", "", (e) => {

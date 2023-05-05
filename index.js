@@ -1,9 +1,10 @@
-import { render, html, nothing } from "lit-html";
+import { render } from "lit-html";
+
 import { addPanZoom } from "./addPanZoom";
-import { colorPicker } from "./colorPicker";
 import { addCanvasInteraction } from "./addCanvasInteraction";
+
 import { actions } from "./actions";
-import { drawPicture } from "./utils";
+import { view } from "./ui/view";
 
 import { Bimp } from "./bimp";
 
@@ -19,240 +20,71 @@ const defaultPalette = [
 ];
 
 const GLOBAL_STATE = {
+  title: "untitled",
   activeTool: "brush", // tool can be move, brush, flood
   activeColor: 1, // palette index of the currently active color
-  bitmap: Bimp.empty(32, 32, 0),
+  bitmap: Bimp.empty(16, 16, 0), // starting bitmap is empty
   panZoom: null,
   canvas: null,
-  pixelScale: 30,
+  pixelScale: 30, // number of pixels canvas should use to show one pixel
   palette: defaultPalette,
-  actions: actions,
   history: [],
-
-  syncCanvas: function () {
-    drawPicture(this);
-  },
-  updateState: function (changes) {
-    Object.assign(this, changes);
-  },
-  doAction: async function (action, ...args) {
-    const stateChanges = this.actions[action](this, args);
-    this.updateState(stateChanges);
-    this.syncCanvas();
-  },
-  applyTool: function (pos) {
-    this.updateState({
-      bitmap: this.bitmap[this.activeTool](pos, this.activeColor),
-    });
-    this.syncCanvas();
-  },
 };
 
-function setActiveColor(paletteIndex, state) {
-  state.activeColor = Number(paletteIndex);
+let canvas = null;
+
+function renderView(state, dispatch) {
+  render(view(state, dispatch), document.body);
 }
 
-function addColor(state) {
-  state.palette.push({ r: 1, g: 1, b: 1, a: 1 });
+function pixelRGBA(state, x, y) {
+  const pixel = state.palette[state.bitmap.pixel(x, y)];
+  return `rgb(${pixel.r * 255} ${pixel.g * 255} ${pixel.b * 255} / ${pixel.a})`;
 }
 
-function updateColor(e, state, index) {
-  const component = e.target.dataset.component;
+function drawPixel(canvasEl, { x, y }, scale, color) {
+  let cx = canvasEl.getContext("2d");
 
-  state.palette[index][component] = Number(e.target.value);
-  drawPicture(state);
+  cx.fillStyle = color;
+  cx.fillRect(x * scale, y * scale, scale, scale);
 }
 
-function renderControls(state) {
-  return html`<div id="app-title">bimp</div>
-    <div class="control-buttons">
-      <button class="control-button" @click=${() => state.doAction("undo")}>
-        <i class="fa-solid fa-rotate-left"></i>
-      </button>
-      <button
-        class="control-button"
-        @click=${() => state.doAction("centerCanvas")}>
-        <i class="fa-solid fa-arrows-to-dot"></i>
-      </button>
-    </div>
-    <div class="control">
-      <div class="control-header">
-        <span>Size</span>
-      </div>
-      <div id="size">
-        <div
-          class="input-spinner"
-          @click=${() =>
-            state.doAction(
-              "resize",
-              state.bitmap.width - 1,
-              state.bitmap.height
-            )}>
-          <i class="fa-solid fa-minus fa-2xs fa-fw"></i>
-        </div>
-        <input
-          type="text"
-          inputmode="numeric"
-          min="1"
-          step="1"
-          id="width"
-          @change=${(e) =>
-            state.doAction(
-              "resize",
-              Number(e.target.value),
-              state.bitmap.height
-            )}
-          value=${state.bitmap.width} />
-        <div
-          class="input-spinner"
-          @click=${() =>
-            state.doAction(
-              "resize",
-              state.bitmap.width + 1,
-              state.bitmap.height
-            )}>
-          <i class="fa-solid fa-plus fa-2xs fa-fw"></i>
-        </div>
-        <span>by</span>
-        <div
-          class="input-spinner"
-          @click=${() =>
-            state.doAction(
-              "resize",
-              state.bitmap.width,
-              state.bitmap.height - 1
-            )}>
-          <i class="fa-solid fa-minus fa-2xs fa-fw"></i>
-        </div>
-        <input
-          type="text"
-          inputmode="numeric"
-          min="1"
-          step="1"
-          @change=${(e) =>
-            state.doAction(
-              "resize",
-              state.bitmap.width,
-              Number(e.target.value)
-            )}
-          value=${state.bitmap.height} />
-        <div
-          class="input-spinner"
-          @click=${() =>
-            state.doAction(
-              "resize",
-              state.bitmap.width,
-              state.bitmap.height + 1
-            )}>
-          <i class="fa-solid fa-plus fa-2xs fa-fw"></i>
-        </div>
-      </div>
-    </div>
-    <div class="control">
-      <div class="control-header">
-        <span>Tools</span>
-      </div>
-      <div id="tools">
-        <div
-          class="tool-select ${state.activeTool == "brush"
-            ? "selected"
-            : "not-selected"}"
-          @click=${() => (state.activeTool = "brush")}>
-          <i class="fa-solid fa-paintbrush"></i>
-        </div>
-        <div
-          class="tool-select ${state.activeTool == "move"
-            ? "selected"
-            : "not-selected"}"
-          @click=${() => (state.activeTool = "move")}>
-          <i class="fa-solid fa-up-down-left-right"></i>
-        </div>
-        <div
-          class="tool-select ${state.activeTool == "flood"
-            ? "selected"
-            : "not-selected"}"
-          @click=${() => (state.activeTool = "flood")}>
-          <i class="fa-solid fa-fill-drip"></i>
-        </div>
-      </div>
-    </div>
-    <div class="control">
-      <div class="control-header">
-        <span>Palette</span>
-        <span class="add-color" @click=${() => addColor(state)}>
-          <i class="fa-solid fa-plus"></i>
-        </span>
-      </div>
-      <div id="palette" class="palette">
-        ${state.palette.map(
-          (color, paletteIndex) =>
-            html`<div
-              class="palette-color ${paletteIndex === state.activeColor
-                ? "active-color"
-                : ""}"
-              data-color=${paletteIndex}
-              style="--r: ${color.r}; --g: ${color.g}; --b: ${color.b}; --a: ${color.a}"
-              @click=${() => setActiveColor(paletteIndex, state)}>
-              ${paletteIndex === 0
-                ? nothing
-                : html`<div class="edit-color-container">
-                    <a class="edit-button" href="#">
-                      <i class="fa-solid fa-pen fa-fw fa-2xs"></i>
-                    </a>
-                    ${colorPicker(state.palette[paletteIndex], (e) =>
-                      updateColor(e, state, paletteIndex)
-                    )}
-                  </div>`}
-            </div>`
-        )}
-      </div>
-    </div>`;
+function syncCanvas(state, canvasEl) {
+  canvasEl.width = state.bitmap.width * state.pixelScale;
+  canvasEl.height = state.bitmap.height * state.pixelScale;
+
+  for (let y = 0; y < state.bitmap.height; y++) {
+    for (let x = 0; x < state.bitmap.width; x++) {
+      const cssColor = pixelRGBA(state, x, y);
+      drawPixel(canvasEl, { x, y }, state.pixelScale, cssColor);
+    }
+  }
 }
 
-// <div class='control'>
-//   <div class='control-header'>
-//     <span>Export</span>
-//   </div>
-//   <div id='formats'>
-//     <button>BMP</button>
-//     <button>JPG</button>
-//     <button>PNG</button>
-//   </div>
-// </div>;
-
-function renderCanvas(state) {
-  return html`<canvas id="canvas" class="transform-group"></canvas>`;
+function syncState() {
+  renderView(GLOBAL_STATE, dispatch);
+  syncCanvas(GLOBAL_STATE, canvas);
 }
 
-function view(state) {
-  return html`<div class="container">
-    <div id="controls">${renderControls(state)}</div>
-    <div id="workspace">${renderCanvas(state)}</div>
-  </div> `;
-}
+function dispatch(action, args, cb) {
+  const changes = actions[action](GLOBAL_STATE, args);
 
-function renderView(state) {
-  render(view(state), document.body);
-}
+  Object.assign(GLOBAL_STATE, changes);
 
-function r() {
-  renderView(GLOBAL_STATE);
-  window.requestAnimationFrame(r);
+  syncState();
+
+  if (cb) cb();
 }
 
 function init(state) {
-  renderView(state);
-  let workspace = document.getElementById("workspace");
+  renderView(state, dispatch);
 
-  state.canvas = document.getElementById("canvas");
-  state.panZoom = addPanZoom(workspace, state);
+  canvas = document.getElementById("canvas");
+  state.panZoom = addPanZoom(document.getElementById("workspace"), state);
 
-  addCanvasInteraction(canvas, state);
+  addCanvasInteraction(canvas, state, dispatch);
 
-  drawPicture(state);
-
-  state.doAction("centerCanvas");
-  window.requestAnimationFrame(r);
+  dispatch("centerCanvas");
 }
 
 init(GLOBAL_STATE);

@@ -1,3 +1,5 @@
+import { exporters } from "./utils";
+
 export const actions = {
   undo: (state) => {
     if (state.history.length === 0) {
@@ -13,8 +15,22 @@ export const actions = {
     return { activeColor: newColor };
   },
 
-  setActiveTool: (state, newTool) => {
-    return { activeTool: newTool };
+  addColor: (state, newColor) => {
+    return { palette: [...state.palette, newColor] };
+  },
+
+  updateColor: (state, { paletteIndex, component, newVal }) => {
+    let updated = [...state.palette];
+    updated[paletteIndex][component] = Number(newVal);
+    return { palette: updated };
+  },
+
+  setActiveTool: (state, tool) => {
+    return { activeTool: tool };
+  },
+
+  applyTool: (state, pos) => {
+    return { bitmap: state.bitmap[state.activeTool](pos, state.activeColor) };
   },
 
   snapshot: (state) => {
@@ -33,6 +49,26 @@ export const actions = {
       x: [0, state.bitmap.width * state.pixelScale],
       y: [0, state.bitmap.height * state.pixelScale],
     });
+    return {};
+  },
+
+  download: (state, format) => {
+    if (!exporters.hasOwnProperty(format)) {
+      console.log("Oops! I don't know how to export to", format);
+      return;
+    }
+
+    let element = document.createElement("a");
+    element.setAttribute(
+      "href",
+      exporters[format](state.bitmap, state.palette)
+    );
+    element.setAttribute("download", `${state.title}.${format}`);
+    element.style.display = "none";
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+
     return {};
   },
 };

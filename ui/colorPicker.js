@@ -1,11 +1,6 @@
 import { html } from "lit-html";
 
-export function colorPicker(color, updateColor) {
-  let r = color.r,
-    g = color.g,
-    b = color.b,
-    a = color.a;
-
+export function rgbaColorPicker({ r, g, b, a }, onInput) {
   return html`<div
     tabindex="0"
     draggable="false"
@@ -27,7 +22,7 @@ export function colorPicker(color, updateColor) {
         step="0.01"
         data-component="r"
         draggable="false"
-        @input=${updateColor}
+        @input=${onInput}
         value=${r}
         style="--stops: rgb(0% ${g * 100}% ${b * 100}% / ${a}), rgb(100% ${g *
         100}% ${b * 100}% / ${a});" />
@@ -44,7 +39,7 @@ export function colorPicker(color, updateColor) {
         step="0.01"
         data-component="g"
         draggable="false"
-        @input=${updateColor}
+        @input=${onInput}
         value=${g}
         style="--stops: rgb(${r * 100}% 0% ${b * 100}% / ${a}), rgb(${r *
         100}% 100% ${b * 100}% / ${a});" />
@@ -60,7 +55,7 @@ export function colorPicker(color, updateColor) {
         max="1"
         step="0.01"
         data-component="b"
-        @input=${updateColor}
+        @input=${onInput}
         value=${b}
         style="--stops: rgb(${r * 100}% ${g * 100}% 0% / ${a}), rgb(${r *
         100}% ${g * 100}% 100% / ${a});" />
@@ -75,7 +70,7 @@ export function colorPicker(color, updateColor) {
         min="0"
         max="1"
         step="0.01"
-        @input=${updateColor}
+        @input=${onInput}
         data-component="a"
         value=${a}
         style="--stops: rgb(${r * 100}% ${g * 100}% ${b * 100}% / 0), rgb(${r *

@@ -24,6 +24,27 @@ export class Bimp {
     return new Bimp(width, height, resized);
   }
 
+  make2d() {
+    let copy = this.pixels.slice();
+    let newArray = [];
+    while (copy.length > 0) newArray.push(copy.splice(0, this.width));
+    return newArray;
+  }
+
+  toImageData(palette) {
+    const arr = new Uint8ClampedArray(this.pixels.length * 4);
+
+    for (let i = 0; i < this.pixels.length; i += 1) {
+      let { r, g, b, a } = palette[this.pixels[i]];
+      arr[i * 4 + 0] = r * 255;
+      arr[i * 4 + 1] = g * 255;
+      arr[i * 4 + 2] = b * 255;
+      arr[i * 4 + 3] = a * 255;
+    }
+
+    return new ImageData(arr, this.width);
+  }
+
   pixel(x, y) {
     return this.pixels[x + y * this.width];
   }

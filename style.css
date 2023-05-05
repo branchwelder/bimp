@@ -61,22 +61,19 @@ canvas {
   max-width: 15rem;
 }
 
-#app-title {
-  font-weight: 800;
-}
-
 .control-header {
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.4rem;
 }
 
-.control-buttons {
+.flex-buttons {
   display: flex;
   gap: 0.3rem;
+  flex-wrap: wrap;
 }
 
-.control-button {
+button {
   border: none;
   background-color: var(--dark2);
   color: var(--ui-text);
@@ -92,16 +89,16 @@ canvas {
   transition: 100ms;
 }
 
-.control-button i {
+button i {
   margin: auto;
 }
 
-.control-button:hover {
+button:hover {
   box-shadow: 0 0 8px black;
   background-color: var(--accent);
 }
 
-.control-button:active {
+button:active {
   background-color: var(--dark2);
 }
 
@@ -174,6 +171,19 @@ canvas {
 
 .tool-select i {
   margin: auto;
+}
+
+/* EXPORT */
+
+#export {
+  margin-top: auto;
+}
+
+#export button {
+  height: 1.5rem;
+  width: unset;
+  padding-inline: 0.3rem;
+  font-weight: 900;
 }
 
 /* COLOR PALETTE */

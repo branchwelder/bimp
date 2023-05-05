@@ -14,8 +14,8 @@ Simple bitmap editor.
 - [x] add color
 - [x] edit existing color
 - [x] rgba
+- [x] export/download
 - [ ] remove color
-- [ ] export/download
 - [ ] import image
 - [ ] brush size and shape
 - [ ] line
