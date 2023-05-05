@@ -1,14 +1,19 @@
 :root {
-  --ui-background: #1a1a1a;
-  --desk-background: #2b2b2b;
+  --dark1: #1a1a1a;
+  --dark2: #2b2b2b;
+  --dark3: #3c3c3c;
   --border: #4d4d4d;
   --ui-text: #fefefe;
-  --accent: #77667d;
+  --accent: #4d4351;
   --ui-highlight: #faffb2;
   --ui-edit: #2976a3;
   --ui-warning: #ee1111;
   --transparency: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill-opacity=".05"><rect width="50" height="50" /><rect x="50" y="50" width="50" height="50" /></svg>')
     0 0 / 20px 20px #f8f8f8;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 .container {
@@ -29,7 +34,7 @@
 #workspace {
   flex: 1;
   overflow: hidden;
-  background-color: var(--desk-background);
+  background-color: var(--dark2);
 }
 
 /* CANVAS */
@@ -44,7 +49,7 @@ canvas {
 /* CONTROL PANEL */
 
 #controls {
-  background-color: var(--ui-background);
+  background-color: var(--dark1);
   font-family: sans-serif;
   color: var(--ui-text);
   display: flex;
@@ -64,6 +69,40 @@ canvas {
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.4rem;
+}
+
+.control-buttons {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.control-button {
+  border: none;
+  background-color: var(--dark2);
+  color: var(--ui-text);
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: 0 0 2px black;
+  cursor: pointer;
+  transition: 100ms;
+}
+
+.control-button i {
+  margin: auto;
+}
+
+.control-button:hover {
+  box-shadow: 0 0 8px black;
+  background-color: var(--accent);
+}
+
+.control-button:active {
+  background-color: var(--dark2);
 }
 
 /* DIMENSIONS */
@@ -89,13 +128,14 @@ canvas {
 }
 
 .input-spinner {
-  background-color: var(--desk-background);
+  background-color: var(--dark2);
   display: flex;
   align-items: center;
   height: 1rem;
   aspect-ratio: 1;
   border-radius: 50%;
   cursor: pointer;
+  box-shadow: 0 0 2px black;
 }
 
 .input-spinner:hover {
@@ -110,6 +150,7 @@ canvas {
 
 #tools {
   display: flex;
+  gap: 0.3rem;
 }
 
 .tool-select {
@@ -118,20 +159,21 @@ canvas {
   cursor: pointer;
   display: flex;
   align-items: center;
+  border-radius: 0.3rem;
 }
 
 .tool-select.selected {
-  /* background-color: var(--accent); */
-  outline: 1px solid var(--ui-text);
-  border-radius: 0.5em;
+  background-color: var(--accent);
+  box-shadow: 0 0 2px black;
+}
+
+.tool-select.not-selected:hover {
+  background-color: var(--dark2);
+  box-shadow: 0 0 2px black;
 }
 
 .tool-select i {
   margin: auto;
-}
-
-.tool-select:hover i {
-  color: var(--ui-highlight);
 }
 
 /* COLOR PALETTE */
@@ -188,8 +230,8 @@ canvas {
 .edit-color-container {
   right: 0.1em;
   bottom: 0.1em;
-  background-color: var(--ui-background);
-  border: 1px solid var(--ui-background);
+  background-color: var(--dark1);
+  border: 1px solid var(--dark1);
   border-radius: 30%;
   position: absolute;
   z-index: 2;
@@ -226,9 +268,9 @@ canvas {
   display: none;
   flex-direction: column;
   position: absolute;
-  background-color: var(--desk-background);
+  background-color: var(--dark2);
   color: var(--ui-text);
-  outline: 1px solid var(--ui-background);
+  outline: 1px solid var(--dark1);
   box-shadow: 0 0 5px 0 black;
   gap: 1px;
   z-index: 10;

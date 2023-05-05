@@ -65,9 +65,16 @@ function updateColor(e, state, index) {
 
 function renderControls(state) {
   return html`<div id="app-title">bimp</div>
-    <button @click=${() => state.doAction("undo")}>Undo</button>
-    <button @click=${() => state.doAction("centerCanvas")}>Center</button>
-
+    <div class="control-buttons">
+      <button class="control-button" @click=${() => state.doAction("undo")}>
+        <i class="fa-solid fa-rotate-left"></i>
+      </button>
+      <button
+        class="control-button"
+        @click=${() => state.doAction("centerCanvas")}>
+        <i class="fa-solid fa-arrows-to-dot"></i>
+      </button>
+    </div>
     <div class="control">
       <div class="control-header">
         <span>Size</span>
@@ -147,17 +154,23 @@ function renderControls(state) {
       </div>
       <div id="tools">
         <div
-          class="tool-select ${state.activeTool == "brush" ? "selected" : ""}"
+          class="tool-select ${state.activeTool == "brush"
+            ? "selected"
+            : "not-selected"}"
           @click=${() => (state.activeTool = "brush")}>
           <i class="fa-solid fa-paintbrush"></i>
         </div>
         <div
-          class="tool-select ${state.activeTool == "move" ? "selected" : ""}"
+          class="tool-select ${state.activeTool == "move"
+            ? "selected"
+            : "not-selected"}"
           @click=${() => (state.activeTool = "move")}>
           <i class="fa-solid fa-up-down-left-right"></i>
         </div>
         <div
-          class="tool-select ${state.activeTool == "flood" ? "selected" : ""}"
+          class="tool-select ${state.activeTool == "flood"
+            ? "selected"
+            : "not-selected"}"
           @click=${() => (state.activeTool = "flood")}>
           <i class="fa-solid fa-fill-drip"></i>
         </div>
