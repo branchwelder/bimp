@@ -129,27 +129,6 @@
     </div>
   </div>`}function Ht(i,t){return y` <div>
     <div class="control-header">
-      <span>Tools</span>
-    </div>
-    <div id="tools">
-      <div
-        class="tool-select ${i.activeTool=="brush"?"selected":"not-selected"}"
-        @click=${()=>t("setActiveTool","brush")}>
-        <i class="fa-solid fa-paintbrush"></i>
-      </div>
-      <div
-        class="tool-select ${i.activeTool=="move"?"selected":"not-selected"}"
-        @click=${()=>t("setActiveTool","move")}>
-        <i class="fa-solid fa-up-down-left-right"></i>
-      </div>
-      <div
-        class="tool-select ${i.activeTool=="flood"?"selected":"not-selected"}"
-        @click=${()=>t("setActiveTool","flood")}>
-        <i class="fa-solid fa-fill-drip"></i>
-      </div>
-    </div>
-  </div>`}function kt(i,t){return y` <div>
-    <div class="control-header">
       <span>Palette</span>
       <span
         class="add-color"
@@ -171,7 +150,7 @@
                 </div>`}
           </div>`)}
     </div>
-  </div>`}function Pt(i,t){return y`<div id="export">
+  </div>`}function kt(i,t){return y`<div id="export">
     <div class="control-header">
       <span>Export</span>
     </div>
@@ -182,11 +161,31 @@
       <button @click=${()=>t("download","bmp")}>BMP</button>
       <button @click=${()=>t("download","json")}>JSON</button>
     </div>
-  </div>`}function Bt(i,t){return y`${Nt(i,t)} ${St(i,t)}
-  ${Ht(i,t)} ${kt(i,t)}
-  ${Pt(i,t)}`}function Mt(i,t){return y`<div class="container">
-    <div id="controls">${Bt(i,t)}</div>
-    <div id="workspace">
-      <canvas id="canvas" class="transform-group"></canvas>
+  </div>`}function Pt(i,t){return y`${Nt(i,t)} ${St(i,t)}
+  ${Ht(i,t)} ${kt(i,t)}`}function Bt(i,t){return y`<div id="toolbar">
+    <div id="tool-group">
+      <div
+        class="tool-select ${i.activeTool=="brush"?"selected":"not-selected"}"
+        @click=${()=>t("setActiveTool","brush")}>
+        <i class="fa-solid fa-paintbrush"></i>
+      </div>
+      <div
+        class="tool-select ${i.activeTool=="flood"?"selected":"not-selected"}"
+        @click=${()=>t("setActiveTool","flood")}>
+        <i class="fa-solid fa-fill-drip"></i>
+      </div>
+      <div
+        class="tool-select ${i.activeTool=="move"?"selected":"not-selected"}"
+        @click=${()=>t("setActiveTool","move")}>
+        <i class="fa-solid fa-up-down-left-right"></i>
+      </div>
+    </div>
+  </div>`}function Mt(i,t){return y`<div class="container">
+    <div id="controls">${Pt(i,t)}</div>
+    <div id="workspace-container">
+      ${Bt(i,t)}
+      <div id="workspace">
+        <canvas id="canvas" class="transform-group"></canvas>
+      </div>
     </div>
   </div> `}class k{constructor(t,e,n){this.width=t,this.height=e,this.pixels=n}static empty(t,e,n){let o=new Array(t*e).fill(n);return new k(t,e,o)}resize(t,e){let n=[];for(let o=0;o<e;o++)for(let s=0;s<t;s++)o>=this.height||s>=this.width?n.push(0):n.push(this.pixel(s,o));return new k(t,e,n)}make2d(){let t=this.pixels.slice(),e=[];for(;t.length>0;)e.push(t.splice(0,this.width));return e}toImageData(t){const e=new Uint8ClampedArray(this.pixels.length*4);for(let n=0;n<this.pixels.length;n+=1){let{r:o,g:s,b:r,a:u}=t[this.pixels[n]];e[n*4+0]=o*255,e[n*4+1]=s*255,e[n*4+2]=r*255,e[n*4+3]=u*255}return new ImageData(e,this.width)}pixel(t,e){return this.pixels[t+e*this.width]}draw(t){let e=this.pixels.slice();for(let{x:n,y:o,color:s}of t)e[n+o*this.width]=s;return new k(this.width,this.height,e)}brush({x:t,y:e},n){let o={x:t,y:e,color:n};return this.draw([o])}flood({x:t,y:e},n){const o=[{dx:-1,dy:0},{dx:1,dy:0},{dx:0,dy:-1},{dx:0,dy:1}];let s=this.pixel(t,e),r=[{x:t,y:e,color:n}];for(let u=0;u<r.length;u++)for(let{dx:c,dy:a}of o){let p=r[u].x+c,d=r[u].y+a;p>=0&&p<this.width&&d>=0&&d<this.height&&this.pixel(p,d)==s&&!r.some(h=>h.x==p&&h.y==d)&&r.push({x:p,y:d,color:n})}return this.draw(r)}}const Rt=[{r:0,g:0,b:0,a:0},{r:0,g:0,b:0,a:1},{r:1,g:0,b:0,a:1},{r:0,g:1,b:0,a:1},{r:0,g:0,b:1,a:1},{r:1,g:1,b:0,a:1},{r:1,g:0,b:1,a:1},{r:0,g:1,b:1,a:1}],U={title:"untitled",activeTool:"brush",activeColor:1,bitmap:k.empty(16,16,0),panZoom:null,canvas:null,pixelScale:30,palette:Rt,history:[]};let X=null;function ot(i,t){vt(Mt(i,t),document.body)}function Ut(i,t,e){const n=i.palette[i.bitmap.pixel(t,e)];return`rgb(${n.r*255} ${n.g*255} ${n.b*255} / ${n.a})`}function Lt(i,{x:t,y:e},n,o){let s=i.getContext("2d");s.fillStyle=o,s.fillRect(t*n,e*n,n,n)}function Et(i,t){t.width=i.bitmap.width*i.pixelScale,t.height=i.bitmap.height*i.pixelScale;for(let e=0;e<i.bitmap.height;e++)for(let n=0;n<i.bitmap.width;n++){const o=Ut(i,n,e);Lt(t,{x:n,y:e},i.pixelScale,o)}}function Ot(){ot(U,E),Et(U,X)}function E(i,t,e){const n=Ct[i](U,t);Object.assign(U,n),Ot(),e&&e()}function jt(i){ot(i,E),X=document.getElementById("canvas"),i.panZoom=wt(document.getElementById("workspace"),i),_t(X,i,E),E("centerCanvas")}jt(U);
