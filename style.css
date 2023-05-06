@@ -29,12 +29,63 @@
   user-select: none;
 }
 
-/* BITMAP EDITOR */
-
 #workspace {
+  flex-grow: 1;
+  overflow: hidden;
+  background-color: var(--dark2);
+  z-index: 0;
+  position: relative;
+}
+
+#workspace-container {
   flex: 1;
   overflow: hidden;
   background-color: var(--dark2);
+  z-index: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+#toolbar {
+  overflow: hidden;
+  background-color: var(--dark1);
+  z-index: 10;
+  padding: 0.3rem;
+  color: var(--ui-text);
+  box-shadow: 0 0 2px black;
+  display: flex;
+  justify-content: center;
+}
+
+/* TOOL SELECTION */
+
+#tool-group {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.tool-select {
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 0.3rem;
+}
+
+.tool-select.selected {
+  background-color: var(--accent);
+  box-shadow: 0 0 2px black;
+}
+
+.tool-select.not-selected:hover {
+  background-color: var(--dark2);
+  box-shadow: 0 0 2px black;
+}
+
+.tool-select i {
+  margin: auto;
 }
 
 /* CANVAS */
@@ -57,8 +108,9 @@ canvas {
   gap: 0.5rem;
   padding: 0.5rem;
   flex: 0 0;
-  border-right: 1px solid var(--border);
   max-width: 15rem;
+  box-shadow: 0 0 5px 0px black;
+  z-index: 5;
 }
 
 .control-header {
@@ -140,36 +192,6 @@ button:active {
 }
 
 .input-spinner i {
-  margin: auto;
-}
-
-/* TOOL SELECTION */
-
-#tools {
-  display: flex;
-  gap: 0.3rem;
-}
-
-.tool-select {
-  width: 2rem;
-  height: 2rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  border-radius: 0.3rem;
-}
-
-.tool-select.selected {
-  background-color: var(--accent);
-  box-shadow: 0 0 2px black;
-}
-
-.tool-select.not-selected:hover {
-  background-color: var(--dark2);
-  box-shadow: 0 0 2px black;
-}
-
-.tool-select i {
   margin: auto;
 }
 

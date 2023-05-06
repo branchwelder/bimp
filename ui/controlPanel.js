@@ -86,37 +86,6 @@ function size(state, dispatch) {
   </div>`;
 }
 
-function tools(state, dispatch) {
-  return html` <div>
-    <div class="control-header">
-      <span>Tools</span>
-    </div>
-    <div id="tools">
-      <div
-        class="tool-select ${state.activeTool == "brush"
-          ? "selected"
-          : "not-selected"}"
-        @click=${() => dispatch("setActiveTool", "brush")}>
-        <i class="fa-solid fa-paintbrush"></i>
-      </div>
-      <div
-        class="tool-select ${state.activeTool == "move"
-          ? "selected"
-          : "not-selected"}"
-        @click=${() => dispatch("setActiveTool", "move")}>
-        <i class="fa-solid fa-up-down-left-right"></i>
-      </div>
-      <div
-        class="tool-select ${state.activeTool == "flood"
-          ? "selected"
-          : "not-selected"}"
-        @click=${() => dispatch("setActiveTool", "flood")}>
-        <i class="fa-solid fa-fill-drip"></i>
-      </div>
-    </div>
-  </div>`;
-}
-
 function palette(state, dispatch) {
   return html` <div>
     <div class="control-header">
@@ -174,6 +143,5 @@ function exportButtons(state, dispatch) {
 
 export function controlPanel(state, dispatch) {
   return html`${controlButtons(state, dispatch)} ${size(state, dispatch)}
-  ${tools(state, dispatch)} ${palette(state, dispatch)}
-  ${exportButtons(state, dispatch)}`;
+  ${palette(state, dispatch)} ${exportButtons(state, dispatch)}`;
 }
