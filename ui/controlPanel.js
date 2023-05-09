@@ -1,7 +1,7 @@
 import { html, nothing } from "lit-html";
 import { rgbaColorPicker } from "./colorPicker";
 
-import { bitmapToCanvas } from "../utils";
+import { bitmapToCanvas, isEditorTarget } from "../utils";
 
 function controlButtons(state, dispatch) {
   return html`<div class="flex-buttons">
@@ -23,10 +23,8 @@ function size(state, dispatch) {
       <div
         class="input-spinner"
         @click=${() =>
-          dispatch(
-            "resize",
-            [state.bitmap.width - 1, state.bitmap.height],
-            () => dispatch("centerCanvas")
+          dispatch("resize", [state.width - 1, state.height], () =>
+            dispatch("centerCanvas")
           )}>
         <i class="fa-solid fa-minus fa-2xs fa-fw"></i>
       </div>
@@ -37,19 +35,15 @@ function size(state, dispatch) {
         step="1"
         id="width"
         @change=${(e) =>
-          dispatch(
-            "resize",
-            [Number(e.target.value), state.bitmap.height],
-            () => dispatch("centerCanvas")
+          dispatch("resize", [Number(e.target.value), state.height], () =>
+            dispatch("centerCanvas")
           )}
-        value=${state.bitmap.width} />
+        value=${state.width} />
       <div
         class="input-spinner"
         @click=${() =>
-          dispatch(
-            "resize",
-            [state.bitmap.width + 1, state.bitmap.height],
-            () => dispatch("centerCanvas")
+          dispatch("resize", [state.width + 1, state.height], () =>
+            dispatch("centerCanvas")
           )}>
         <i class="fa-solid fa-plus fa-2xs fa-fw"></i>
       </div>
@@ -57,10 +51,8 @@ function size(state, dispatch) {
       <div
         class="input-spinner"
         @click=${() =>
-          dispatch(
-            "resize",
-            [state.bitmap.width, state.bitmap.height - 1],
-            () => dispatch("centerCanvas")
+          dispatch("resize", [state.width, state.height - 1], () =>
+            dispatch("centerCanvas")
           )}>
         <i class="fa-solid fa-minus fa-2xs fa-fw"></i>
       </div>
@@ -70,17 +62,15 @@ function size(state, dispatch) {
         min="1"
         step="1"
         @change=${(e) =>
-          dispatch("resize", [state.bitmap.width, Number(e.target.value)], () =>
+          dispatch("resize", [state.width, Number(e.target.value)], () =>
             dispatch("centerCanvas")
           )}
-        value=${state.bitmap.height} />
+        value=${state.height} />
       <div
         class="input-spinner"
         @click=${() =>
-          dispatch(
-            "resize",
-            [state.bitmap.width, state.bitmap.height + 1],
-            () => dispatch("centerCanvas")
+          dispatch("resize", [state.width, state.height + 1], () =>
+            dispatch("centerCanvas")
           )}>
         <i class="fa-solid fa-plus fa-2xs fa-fw"></i>
       </div>
@@ -152,15 +142,18 @@ function tiling(state, dispatch) {
       </span>
     </div>
     ${state.tiles.map(
-      (tile) =>
-        html`<div class="tile">
+      (tile, index) =>
+        html`<div
+          class="tile ${isEditorTarget(state.editorTarget, "tiles", index)
+            ? "selected"
+            : "unselected"}">
           <img
             class="tile-im"
             src=${bitmapToCanvas(tile, state.palette).toDataURL()} />
           <span>${tile.width} x ${tile.height}</span>
-          <!-- <button @click=${() => dispatch("editTile", tile)}>
+          <button @click=${() => dispatch("setEditorTarget", ["tiles", index])}>
             <i class="fa-solid fa-pen"></i>
-          </button> -->
+          </button>
           <button @click=${() => dispatch("tile", tile)}>
             <i class="fa-solid fa-arrow-right"></i>
           </button>

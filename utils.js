@@ -75,6 +75,11 @@ export const exporters = {
   jpg: exportJPG,
 };
 
-export const activeBimp = (state) => {
-  return state[state.activeEditor[0]][state.activeEditor[1]];
+export const getEditorTarget = (state) => {
+  return state[state.editorTarget[0]][state.editorTarget[1]];
+};
+
+export const isEditorTarget = (target, set, index) => {
+  if (target[0] === set && target[1] === index) return true;
+  return false;
 };

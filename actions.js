@@ -1,4 +1,4 @@
-import { exporters, activeBimp } from "./utils";
+import { exporters, getEditorTarget } from "./utils";
 import { Bimp } from "./bimp";
 
 export const actions = {
@@ -16,6 +16,13 @@ export const actions = {
     return { activeColor: newColor };
   },
 
+  addLayer: (state) => {
+    return {
+      layers: [...state.layers, Bimp.empty(state.width, state.height, 0)],
+      editorTarget: ["layers", state.layers.length],
+    };
+  },
+
   addColor: (state, newColor) => {
     return { palette: [...state.palette, newColor] };
   },
@@ -30,8 +37,25 @@ export const actions = {
     return { activeTool: tool };
   },
 
+  setEditorTarget: (state, target) => {
+    return { editorTarget: target };
+  },
+
   applyTool: (state, pos) => {
-    return { bitmap: state.bitmap[state.activeTool](pos, state.activeColor) };
+    // return { bitmap: state.bitmap[state.activeTool](pos, state.activeColor) };
+    if (state.activeTool === "code") return {};
+    let target = state.editorTarget[0];
+
+    let copy = [...state[target]];
+
+    copy[state.editorTarget[1]] = getEditorTarget(state)[state.activeTool](
+      pos,
+      state.activeColor
+    );
+
+    return {
+      [target]: copy,
+    };
   },
 
   snapshot: (state) => {
@@ -39,28 +63,45 @@ export const actions = {
   },
 
   resize: (state, dims) => {
+    const updated = state.layers.map((layer) => layer.resize(dims[0], dims[1]));
+    // return {
+    //   bitmap: state.bitmap.resize(dims[0], dims[1]),
+    //   history: [state.bitmap, ...state.history],
+    // };
     return {
-      bitmap: state.bitmap.resize(dims[0], dims[1]),
-      history: [state.bitmap, ...state.history],
+      layers: updated,
+      width: dims[0],
+      height: dims[1],
+      // history: [state.bitmap, ...state.history],
     };
   },
 
   centerCanvas: (state) => {
+    const currentBitmap = getEditorTarget(state);
     state.panZoom.setScaleXY({
-      x: [0, state.bitmap.width * state.pixelScale],
-      y: [0, state.bitmap.height * state.pixelScale],
+      x: [0, currentBitmap.width * state.pixelScale],
+      y: [0, currentBitmap.height * state.pixelScale],
     });
     return {};
   },
 
   tile: (state, tile) => {
+    const target = state.editorTarget[0];
+    const copy = [...state[target]];
+
+    copy[state.editorTarget[1]] = Bimp.fromTile(
+      state.width,
+      state.height,
+      tile
+    );
+
     return {
-      bitmap: Bimp.fromTile(state.bitmap.width, state.bitmap.height, tile),
+      [target]: copy,
     };
   },
 
   newTile: (state) => {
-    return { tiles: [...state.tiles, state.bitmap] };
+    return { tiles: [...state.tiles, getEditorTarget(state)] };
   },
 
   download: (state, format) => {

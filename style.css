@@ -88,10 +88,20 @@
 #layers {
   display: flex;
   flex-direction: column;
+  gap: 0.2rem;
 }
 
 .layer {
   display: flex;
+  align-items: center;
+}
+
+.layer.selected {
+  background-color: var(--accent);
+}
+
+.layer > span {
+  padding: 0.3rem;
 }
 
 #preview {
@@ -99,6 +109,24 @@
   background-color: var(--dark1);
   color: var(--ui-text);
   display: flex;
+}
+
+/* EDITOR */
+
+#editor {
+  background-color: var(--dark1);
+  color: var(--ui-text);
+  height: 20rem;
+  box-shadow: 0 0 5px 0px black;
+  z-index: 5;
+}
+
+#editor-title {
+  padding: 0.2rem;
+}
+
+.cm-editor {
+  height: 100%;
 }
 
 /* TOOL SELECTION */
@@ -253,6 +281,10 @@ button:active {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.tile.selected {
+  background-color: var(--accent);
 }
 
 .tile > img {
