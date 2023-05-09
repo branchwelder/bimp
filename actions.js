@@ -1,4 +1,5 @@
-import { exporters } from "./utils";
+import { exporters, activeBimp } from "./utils";
+import { Bimp } from "./bimp";
 
 export const actions = {
   undo: (state) => {
@@ -50,6 +51,16 @@ export const actions = {
       y: [0, state.bitmap.height * state.pixelScale],
     });
     return {};
+  },
+
+  tile: (state, tile) => {
+    return {
+      bitmap: Bimp.fromTile(state.bitmap.width, state.bitmap.height, tile),
+    };
+  },
+
+  newTile: (state) => {
+    return { tiles: [...state.tiles, state.bitmap] };
   },
 
   download: (state, format) => {

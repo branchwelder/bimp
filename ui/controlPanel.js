@@ -1,6 +1,8 @@
 import { html, nothing } from "lit-html";
 import { rgbaColorPicker } from "./colorPicker";
 
+import { bitmapToCanvas } from "../utils";
+
 function controlButtons(state, dispatch) {
   return html`<div class="flex-buttons">
     <button @click=${() => dispatch("undo")}>
@@ -91,7 +93,7 @@ function palette(state, dispatch) {
     <div class="control-header">
       <span>Palette</span>
       <span
-        class="add-color"
+        class="header-action"
         @click=${() => dispatch("addColor", { r: 1, g: 1, b: 1, a: 1 })}>
         <i class="fa-solid fa-plus"></i>
       </span>
@@ -141,7 +143,34 @@ function exportButtons(state, dispatch) {
   </div>`;
 }
 
+function tiling(state, dispatch) {
+  return html`<div id="tiles">
+    <div class="control-header">
+      <span>Tiles</span>
+      <span class="header-action" @click=${() => dispatch("newTile")}>
+        <i class="fa-solid fa-arrow-left"></i>
+      </span>
+    </div>
+    ${state.tiles.map(
+      (tile) =>
+        html`<div class="tile">
+          <img
+            class="tile-im"
+            src=${bitmapToCanvas(tile, state.palette).toDataURL()} />
+          <span>${tile.width} x ${tile.height}</span>
+          <!-- <button @click=${() => dispatch("editTile", tile)}>
+            <i class="fa-solid fa-pen"></i>
+          </button> -->
+          <button @click=${() => dispatch("tile", tile)}>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>`
+    )}
+  </div>`;
+}
+
 export function controlPanel(state, dispatch) {
   return html`${controlButtons(state, dispatch)} ${size(state, dispatch)}
-  ${palette(state, dispatch)} ${exportButtons(state, dispatch)}`;
+  ${palette(state, dispatch)} ${tiling(state, dispatch)}
+  ${exportButtons(state, dispatch)}`;
 }

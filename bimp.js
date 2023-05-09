@@ -10,6 +10,37 @@ export class Bimp {
     return new Bimp(width, height, pixels);
   }
 
+  static fromTile(width, height, tile) {
+    // tile should be a Bimp
+
+    let tiled = [];
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        tiled.push(tile.pixel(x % tile.width, y % tile.height));
+      }
+    }
+
+    return new Bimp(width, height, tiled);
+  }
+
+  static composite(width, height, bimpArray) {
+    // bimpArray: array of bimps to layer. 0 will be highest
+    let composite = [];
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        let base = 0;
+        for (const bim of bimpArray) {
+          base += bim.pixel(x % bim.width, y % bim.height);
+        }
+        composite.push(base);
+      }
+    }
+
+    return new Bimp(width, height, composite);
+  }
+
   resize(width, height) {
     let resized = [];
     for (let y = 0; y < height; y++) {

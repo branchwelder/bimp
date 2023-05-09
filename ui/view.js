@@ -1,5 +1,6 @@
 import { html } from "lit-html";
 import { controlPanel } from "./controlPanel";
+import { bitmapToCanvas } from "../utils";
 
 function toolbar(state, dispatch) {
   return html`<div id="toolbar">
@@ -29,6 +30,26 @@ function toolbar(state, dispatch) {
   </div>`;
 }
 
+function layers(state) {
+  return html`
+    <div id="layers">
+      ${state.layers.map(
+        (layer) => html`<div class="layer">
+          <img
+            class="pixelated"
+            src=${bitmapToCanvas(layer, state.palette).toDataURL()} />
+        </div>`
+      )}
+    </div>
+
+    <div id="preview">
+      <img
+        class="pixelated"
+        src=${bitmapToCanvas(state.bitmap, state.palette).toDataURL()} />
+    </div>
+  </div>`;
+}
+
 export function view(state, dispatch) {
   return html`<div class="container">
     <div id="controls">${controlPanel(state, dispatch)}</div>
@@ -38,5 +59,6 @@ export function view(state, dispatch) {
         <canvas id="canvas" class="transform-group"></canvas>
       </div>
     </div>
+    <!-- <div id="right-pane">${layers(state)}</div> -->
   </div> `;
 }

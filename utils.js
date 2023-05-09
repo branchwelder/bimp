@@ -74,3 +74,7 @@ export const exporters = {
   png: exportPNG,
   jpg: exportJPG,
 };
+
+export const activeBimp = (state) => {
+  return state[state.activeEditor[0]][state.activeEditor[1]];
+};

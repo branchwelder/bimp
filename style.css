@@ -10,16 +10,14 @@
   --ui-warning: #ee1111;
   --transparency: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill-opacity=".05"><rect width="50" height="50" /><rect x="50" y="50" width="50" height="50" /></svg>')
     0 0 / 20px 20px #f8f8f8;
+  font-family: sans-serif;
 }
 
 * {
   box-sizing: border-box;
 }
 
-.container {
-  display: flex;
-  height: 100vh;
-}
+/* UTILITIES */
 
 .unselectable {
   -moz-user-select: -moz-none;
@@ -27,6 +25,20 @@
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.pixelated {
+  image-rendering: pixelated;
+  background: var(--transparency);
+  display: block;
+  flex: 1;
+}
+
+/* Global */
+.container {
+  display: flex;
+  height: 100vh;
+  position: relative;
 }
 
 #workspace {
@@ -56,6 +68,37 @@
   box-shadow: 0 0 2px black;
   display: flex;
   justify-content: center;
+}
+
+/* Right Pane */
+
+#right-pane {
+  background-color: var(--dark1);
+  color: var(--ui-text);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 0 0;
+  max-width: 15rem;
+  box-shadow: 0 0 5px 0px black;
+  z-index: 5;
+  flex-basis: 5rem;
+}
+
+#layers {
+  display: flex;
+  flex-direction: column;
+}
+
+.layer {
+  display: flex;
+}
+
+#preview {
+  margin-top: auto;
+  background-color: var(--dark1);
+  color: var(--ui-text);
+  display: flex;
 }
 
 /* TOOL SELECTION */
@@ -101,7 +144,6 @@ canvas {
 
 #controls {
   background-color: var(--dark1);
-  font-family: sans-serif;
   color: var(--ui-text);
   display: flex;
   flex-direction: column;
@@ -123,6 +165,10 @@ canvas {
   display: flex;
   gap: 0.3rem;
   flex-wrap: wrap;
+}
+
+.header-action {
+  cursor: pointer;
 }
 
 button {
@@ -195,6 +241,37 @@ button:active {
   margin: auto;
 }
 
+/* TILES */
+
+#tiles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.tile {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tile > img {
+  /* height: 3rem; */
+  width: 3rem;
+  image-rendering: pixelated;
+  object-fit: contain;
+  background: var(--transparency);
+}
+
+.tile > span {
+  width: 4rem;
+}
+
+.tile > button {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
 /* EXPORT */
 
 #export {
@@ -216,10 +293,6 @@ button:active {
   gap: 1px;
 }
 
-.add-color {
-  cursor: pointer;
-}
-
 .palette-color {
   aspect-ratio: 1;
   cursor: pointer;
@@ -236,7 +309,8 @@ button:active {
   content: "";
   width: 100%;
   height: 100%;
-  background-image: repeating-conic-gradient(#f5f5f5 0% 25%, white 0% 50%);
+  /* background-image: repeating-conic-gradient(#f5f5f5 0% 25%, white 0% 50%); */
+  background: var(--transparency);
   display: block;
   position: absolute;
   z-index: 0;
