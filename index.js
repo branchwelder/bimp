@@ -83,25 +83,6 @@ const GLOBAL_STATE = {
 
 let canvas = null;
 
-function pixelRGBA(palette, bitmap, x, y) {
-  try {
-    const pixel = palette[bitmap.pixel(x, y)];
-
-    return `rgb(${pixel.r * 255} ${pixel.g * 255} ${pixel.b * 255} / ${
-      pixel.a
-    })`;
-  } catch {
-    return "rgb(0 0 0)";
-  }
-}
-
-function drawPixel(canvasEl, { x, y }, scale, color) {
-  let cx = canvasEl.getContext("2d");
-
-  cx.fillStyle = color;
-  cx.fillRect(x * scale, y * scale, scale, scale);
-}
-
 function syncCanvas(state, canvasEl) {
   const bitmap = state.layers[state.activeLayer].bitmap;
 
