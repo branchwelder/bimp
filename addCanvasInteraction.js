@@ -19,7 +19,6 @@ export function addCanvasInteraction(canvas, state, dispatch) {
   }
 
   function begin() {
-    dispatch("snapshot");
     mousedown = true;
   }
 
@@ -28,7 +27,11 @@ export function addCanvasInteraction(canvas, state, dispatch) {
   }
 
   listen("pointerdown", "", (e) => {
-    if (state.activeTool === "move") return;
+    if (
+      state.activeTool === "move" ||
+      state.layers[state.activeLayer].type === "code"
+    )
+      return;
     begin();
     pos = getPixelCoordinates(e);
     dispatch("applyTool", pos);

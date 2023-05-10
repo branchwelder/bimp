@@ -7,6 +7,12 @@
     "deploy": "vite build --base=/bimp/ && gh-pages -d dist"
   },
   "dependencies": {
+    "@codemirror/commands": "^6.2.4",
+    "@codemirror/lang-javascript": "^6.1.7",
+    "@codemirror/language": "^6.6.0",
+    "@codemirror/lint": "^6.2.1",
+    "@codemirror/state": "^6.2.0",
+    "@codemirror/view": "^6.11.0",
     "gh-pages": "^5.0.0",
     "lit-html": "^2.7.3",
     "vite": "^4.3.3"

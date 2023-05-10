@@ -18,13 +18,13 @@ export const createListener =
   };
 
 export const bitmapToCanvas = (bitmap, palette) => {
-  const imageData = bitmap.toImageData(palette);
-
   const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
 
   canvas.width = bitmap.width;
   canvas.height = bitmap.height;
+
+  const ctx = canvas.getContext("2d");
+  const imageData = bitmap.toImageData(palette);
 
   ctx.putImageData(imageData, 0, 0);
   return canvas;
@@ -73,8 +73,4 @@ export const exporters = {
   json: exportJSON,
   png: exportPNG,
   jpg: exportJPG,
-};
-
-export const activeBimp = (state) => {
-  return state[state.activeEditor[0]][state.activeEditor[1]];
 };

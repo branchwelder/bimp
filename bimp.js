@@ -24,22 +24,22 @@ export class Bimp {
     return new Bimp(width, height, tiled);
   }
 
-  static composite(width, height, bimpArray) {
-    // bimpArray: array of bimps to layer. 0 will be highest
-    let composite = [];
+  // static composite(width, height, bimpArray) {
+  //   // bimpArray: array of bimps to layer. 0 will be highest
+  //   let composite = [];
 
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        let base = 0;
-        for (const bim of bimpArray) {
-          base += bim.pixel(x % bim.width, y % bim.height);
-        }
-        composite.push(base);
-      }
-    }
+  //   for (let y = 0; y < height; y++) {
+  //     for (let x = 0; x < width; x++) {
+  //       let base = 0;
+  //       for (const bim of bimpArray) {
+  //         base += bim.pixel(x % bim.width, y % bim.height);
+  //       }
+  //       composite.push(base);
+  //     }
+  //   }
 
-    return new Bimp(width, height, composite);
-  }
+  //   return new Bimp(width, height, composite);
+  // }
 
   resize(width, height) {
     let resized = [];
@@ -63,21 +63,36 @@ export class Bimp {
   }
 
   toImageData(palette) {
-    const arr = new Uint8ClampedArray(this.pixels.length * 4);
+    try {
+      const arr = new Uint8ClampedArray(this.pixels.length * 4);
+      for (let i = 0; i < this.pixels.length; i += 1) {
+        try {
+          let { r, g, b, a } = palette[this.pixels[i]];
 
-    for (let i = 0; i < this.pixels.length; i += 1) {
-      let { r, g, b, a } = palette[this.pixels[i]];
-      arr[i * 4 + 0] = r * 255;
-      arr[i * 4 + 1] = g * 255;
-      arr[i * 4 + 2] = b * 255;
-      arr[i * 4 + 3] = a * 255;
+          arr[i * 4 + 0] = r * 255;
+          arr[i * 4 + 1] = g * 255;
+          arr[i * 4 + 2] = b * 255;
+          arr[i * 4 + 3] = a * 255;
+        } catch (e) {
+          arr[i * 4 + 0] = 0;
+          arr[i * 4 + 1] = 0;
+          arr[i * 4 + 2] = 0;
+          arr[i * 4 + 3] = 0;
+        }
+      }
+
+      return new ImageData(arr, this.width);
+    } catch (e) {
+      console.error("Error creating ImageData from Bimp");
+      return new ImageData(new Uint8ClampedArray(4), 1);
     }
-
-    return new ImageData(arr, this.width);
   }
 
   pixel(x, y) {
-    return this.pixels[x + y * this.width];
+    if (x > this.width - 1 || x < 0 || y > this.height - 1 || y < 0) {
+      return -1;
+    }
+    return this.pixels.at(x + y * this.width);
   }
 
   draw(changes) {
