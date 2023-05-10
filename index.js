@@ -74,7 +74,7 @@ const GLOBAL_STATE = {
   activeColor: 1, // palette index of the currently active color
   activeLayer: 0,
   panZoom: null,
-  pixelScale: 100, // number of pixels canvas should use to show one pixel
+  pixelScale: 20, // number of pixels canvas should use to show one pixel
   palette: defaultPalette,
   history: [],
   editorView: new EditorView(),

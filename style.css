@@ -90,7 +90,6 @@ button:active {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  padding: 0.5rem;
   max-width: 15rem;
   box-shadow: 0 0 5px 0px black;
   z-index: 5;
@@ -123,9 +122,11 @@ button:active {
   display: flex;
   flex-direction: column;
   gap: 1px;
-  flex-basis: 7rem;
+
   box-shadow: 0 0 5px 0px black;
   z-index: 5;
+  width: 10rem;
+  overflow: hidden;
 }
 
 .layer {
@@ -139,6 +140,17 @@ button:active {
 
 .layer > span {
   padding: 0.3rem;
+}
+
+.preview-container {
+  display: flex;
+  max-height: 5rem;
+  flex-grow: 1;
+}
+
+.preview-container > img {
+  flex-grow: 1;
+  object-fit: contain;
 }
 
 #right-pane .flex-buttons {
@@ -158,6 +170,7 @@ button:active {
   height: 20rem;
   box-shadow: 0 0 5px 0px black;
   z-index: 5;
+  flex-shrink: 0;
 }
 
 .cm-editor {
@@ -175,6 +188,7 @@ button:active {
   box-shadow: 0 0 2px black;
   display: flex;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 #tool-group {
@@ -219,7 +233,7 @@ canvas {
 .control-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.4rem;
+  padding: 0.4rem;
 }
 
 .header-action {

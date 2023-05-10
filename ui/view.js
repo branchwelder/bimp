@@ -94,14 +94,17 @@ function toolbar(state, dispatch) {
 }
 
 function layers(state, dispatch) {
-  return html` ${state.layers.map(
-      (layer, index) => html`<div
+  return html`<div class="control-header">Bitmaps</div>
+    ${state.layers.map(
+      (layer, index) => html` <div
         class="layer ${state.activeLayer === index ? "selected" : "unselected"}"
         @click=${() => dispatch("setActiveLayer", index)}>
         <span>${index}</span>
-        <img
-          class="pixelated"
-          src=${bitmapToCanvas(layer.bitmap, state.palette).toDataURL()} />
+        <div class="preview-container">
+          <img
+            class="pixelated"
+            src=${bitmapToCanvas(layer.bitmap, state.palette).toDataURL()} />
+        </div>
       </div>`
     )}
     <div class="flex-buttons">

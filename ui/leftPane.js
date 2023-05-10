@@ -68,6 +68,6 @@ function exportButtons(state, dispatch) {
 }
 
 export function leftPane(state, dispatch) {
-  return html`${controlButtons(state, dispatch)} ${palette(state, dispatch)}
+  return html`${palette(state, dispatch)} ${controlButtons(state, dispatch)}
     <!-- ${exportButtons(state, dispatch)} -->`;
 }
