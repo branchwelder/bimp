@@ -8,6 +8,7 @@ import { actions } from "./actions";
 import { view } from "./ui/view";
 
 import { Bimp } from "./bimp";
+import { bitmapToCanvas } from "./utils";
 
 const defaultPalette = [
   { r: 0, g: 0, b: 0, a: 0 },
@@ -73,7 +74,7 @@ const GLOBAL_STATE = {
   activeColor: 1, // palette index of the currently active color
   activeLayer: 0,
   panZoom: null,
-  pixelScale: 30, // number of pixels canvas should use to show one pixel
+  pixelScale: 100, // number of pixels canvas should use to show one pixel
   palette: defaultPalette,
   history: [],
   editorView: new EditorView(),
@@ -107,12 +108,11 @@ function syncCanvas(state, canvasEl) {
   canvasEl.width = bitmap.width * state.pixelScale;
   canvasEl.height = bitmap.height * state.pixelScale;
 
-  for (let y = 0; y < bitmap.height; y++) {
-    for (let x = 0; x < bitmap.width; x++) {
-      const cssColor = pixelRGBA(state.palette, bitmap, x, y);
-      drawPixel(canvasEl, { x, y }, state.pixelScale, cssColor);
-    }
-  }
+  const ctx = canvasEl.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+  ctx.scale(state.pixelScale, state.pixelScale);
+
+  ctx.drawImage(bitmapToCanvas(bitmap, state.palette), 0, 0);
 }
 
 function renderView(state, dispatch) {
@@ -138,15 +138,18 @@ function dispatch(action, args, cb) {
   if (cb) cb();
 }
 
-function init(state) {
-  renderView(state, dispatch);
+function init() {
+  renderView(GLOBAL_STATE, dispatch);
 
   canvas = document.getElementById("canvas");
-  state.panZoom = addPanZoom(document.getElementById("workspace"), state);
+  GLOBAL_STATE.panZoom = addPanZoom(
+    document.getElementById("workspace"),
+    GLOBAL_STATE
+  );
 
-  addCanvasInteraction(canvas, state, dispatch);
+  addCanvasInteraction(canvas, GLOBAL_STATE, dispatch);
   dispatch("centerCanvas");
   dispatch("execute");
 }
 
-init(GLOBAL_STATE);
+init();
