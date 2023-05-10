@@ -140,7 +140,7 @@ return new Bimp(width, height, pixels);`});const s=n.layers.length;return{change
       <button @click=${()=>t("download","bmp")}>BMP</button>
       <button @click=${()=>t("download","json")}>JSON</button>
     </div>
-  </div>`}function P0(n,t){return Pt`${$0(n,t)} ${k0(n,t)}
+  </div>`}function P0(n,t){return Pt`${k0(n,t)} ${$0(n,t)}
     <!-- ${v0(n,t)} -->`}function C0(n,t){const e=n.layers[n.activeLayer].bitmap,i=e.width,s=e.height;return Pt`<div id="size">
     <div
       class="input-spinner"
@@ -197,13 +197,16 @@ return new Bimp(width, height, pixels);`});const s=n.layers.length;return{change
         <i class="fa-solid fa-up-down-left-right"></i>
       </div>
     </div>
-  </div>`}function Z0(n,t){return Pt` ${n.layers.map((e,i)=>Pt`<div
+  </div>`}function Z0(n,t){return Pt`<div class="control-header">Bitmaps</div>
+    ${n.layers.map((e,i)=>Pt` <div
         class="layer ${n.activeLayer===i?"selected":"unselected"}"
         @click=${()=>t("setActiveLayer",i)}>
         <span>${i}</span>
-        <img
-          class="pixelated"
-          src=${Mh(e.bitmap,n.palette).toDataURL()} />
+        <div class="preview-container">
+          <img
+            class="pixelated"
+            src=${Mh(e.bitmap,n.palette).toDataURL()} />
+        </div>
       </div>`)}
     <div class="flex-buttons">
       <button @click=${()=>t("addDirectLayer")}>
@@ -245,4 +248,4 @@ for (let y=0; y<height; y++) {
   }
 }
 
-return new Bimp(width, height, pix);`}],ke={title:"untitled",activeTool:"brush",activeColor:1,activeLayer:0,panZoom:null,pixelScale:100,palette:R0,history:[],editorView:new C,layers:M0};let $r=null;function Y0(n,t){const e=n.layers[n.activeLayer].bitmap;t.width=e.width*n.pixelScale,t.height=e.height*n.pixelScale;const i=t.getContext("2d");i.imageSmoothingEnabled=!1,i.scale(n.pixelScale,n.pixelScale),i.drawImage(Mh(e,n.palette),0,0)}function Of(n,t){kf(T0(n,t),document.body)}function U0(){const n=ke;Of(n,Ee),Y0(n,$r)}function Ee(n,t,e){const{changes:i,postRender:s}=w0[n](ke,t,Ee);Object.assign(ke,i),U0(),s&&s(),e&&e()}function D0(){Of(ke,Ee),$r=document.getElementById("canvas"),ke.panZoom=cO(document.getElementById("workspace"),ke),fO($r,ke,Ee),Ee("centerCanvas"),Ee("execute")}D0();
+return new Bimp(width, height, pix);`}],ke={title:"untitled",activeTool:"brush",activeColor:1,activeLayer:0,panZoom:null,pixelScale:20,palette:R0,history:[],editorView:new C,layers:M0};let $r=null;function Y0(n,t){const e=n.layers[n.activeLayer].bitmap;t.width=e.width*n.pixelScale,t.height=e.height*n.pixelScale;const i=t.getContext("2d");i.imageSmoothingEnabled=!1,i.scale(n.pixelScale,n.pixelScale),i.drawImage(Mh(e,n.palette),0,0)}function Of(n,t){kf(T0(n,t),document.body)}function U0(){const n=ke;Of(n,Ee),Y0(n,$r)}function Ee(n,t,e){const{changes:i,postRender:s}=w0[n](ke,t,Ee);Object.assign(ke,i),U0(),s&&s(),e&&e()}function D0(){Of(ke,Ee),$r=document.getElementById("canvas"),ke.panZoom=cO(document.getElementById("workspace"),ke),fO($r,ke,Ee),Ee("centerCanvas"),Ee("execute")}D0();
