@@ -18,13 +18,13 @@ export const createListener =
   };
 
 export const bitmapToCanvas = (bitmap, palette) => {
-  const imageData = bitmap.toImageData(palette);
-
   const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
 
   canvas.width = bitmap.width;
   canvas.height = bitmap.height;
+
+  const ctx = canvas.getContext("2d");
+  const imageData = bitmap.toImageData(palette);
 
   ctx.putImageData(imageData, 0, 0);
   return canvas;
@@ -73,13 +73,4 @@ export const exporters = {
   json: exportJSON,
   png: exportPNG,
   jpg: exportJPG,
-};
-
-export const getEditorTarget = (state) => {
-  return state[state.editorTarget[0]][state.editorTarget[1]];
-};
-
-export const isEditorTarget = (target, set, index) => {
-  if (target[0] === set && target[1] === index) return true;
-  return false;
 };

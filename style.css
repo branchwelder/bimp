@@ -34,11 +34,77 @@
   flex: 1;
 }
 
+button {
+  border: none;
+  background-color: var(--dark2);
+  color: var(--ui-text);
+  box-shadow: 0 0 2px black;
+  cursor: pointer;
+  transition: 100ms;
+  border-radius: 0.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button > i {
+  display: inline-block;
+  line-height: 0 !important;
+}
+
+button > span {
+  line-height: 0 !important;
+}
+
+button:hover {
+  box-shadow: 0 0 8px black;
+  background-color: var(--accent);
+}
+
+button:active {
+  background-color: var(--dark2);
+}
+
+.flex-buttons {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.flex-buttons button {
+  width: 2rem;
+  height: 2rem;
+}
+
 /* Global */
+
 .container {
   display: flex;
   height: 100vh;
   position: relative;
+}
+
+#left-pane {
+  background-color: var(--dark1);
+  color: var(--ui-text);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  max-width: 15rem;
+  box-shadow: 0 0 5px 0px black;
+  z-index: 5;
+  width: 10rem;
+}
+
+#center {
+  flex: 1;
+  overflow: hidden;
+  background-color: var(--dark2);
+  z-index: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 #workspace {
@@ -49,27 +115,6 @@
   position: relative;
 }
 
-#workspace-container {
-  flex: 1;
-  overflow: hidden;
-  background-color: var(--dark2);
-  z-index: 0;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-
-#toolbar {
-  overflow: hidden;
-  background-color: var(--dark1);
-  z-index: 10;
-  padding: 0.3rem;
-  color: var(--ui-text);
-  box-shadow: 0 0 2px black;
-  display: flex;
-  justify-content: center;
-}
-
 /* Right Pane */
 
 #right-pane {
@@ -77,18 +122,10 @@
   color: var(--ui-text);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  flex: 0 0;
-  max-width: 15rem;
+  gap: 1px;
+  flex-basis: 7rem;
   box-shadow: 0 0 5px 0px black;
   z-index: 5;
-  flex-basis: 5rem;
-}
-
-#layers {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
 }
 
 .layer {
@@ -104,11 +141,13 @@
   padding: 0.3rem;
 }
 
-#preview {
+#right-pane .flex-buttons {
   margin-top: auto;
-  background-color: var(--dark1);
-  color: var(--ui-text);
-  display: flex;
+  padding: 0.3rem;
+}
+
+#right-pane .flex-buttons button {
+  flex: 1;
 }
 
 /* EDITOR */
@@ -121,15 +160,22 @@
   z-index: 5;
 }
 
-#editor-title {
-  padding: 0.2rem;
-}
-
 .cm-editor {
   height: 100%;
 }
 
-/* TOOL SELECTION */
+/* TOOLBAR */
+
+#toolbar {
+  overflow: hidden;
+  background-color: var(--dark1);
+  z-index: 10;
+  padding: 0.3rem;
+  color: var(--ui-text);
+  box-shadow: 0 0 2px black;
+  display: flex;
+  justify-content: center;
+}
 
 #tool-group {
   display: flex;
@@ -170,62 +216,14 @@ canvas {
 
 /* CONTROL PANEL */
 
-#controls {
-  background-color: var(--dark1);
-  color: var(--ui-text);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  flex: 0 0;
-  max-width: 15rem;
-  box-shadow: 0 0 5px 0px black;
-  z-index: 5;
-}
-
 .control-header {
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.4rem;
 }
 
-.flex-buttons {
-  display: flex;
-  gap: 0.3rem;
-  flex-wrap: wrap;
-}
-
 .header-action {
   cursor: pointer;
-}
-
-button {
-  border: none;
-  background-color: var(--dark2);
-  color: var(--ui-text);
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  box-shadow: 0 0 2px black;
-  cursor: pointer;
-  transition: 100ms;
-}
-
-button i {
-  margin: auto;
-}
-
-button:hover {
-  box-shadow: 0 0 8px black;
-  background-color: var(--accent);
-}
-
-button:active {
-  background-color: var(--dark2);
 }
 
 /* DIMENSIONS */
@@ -233,6 +231,7 @@ button:active {
 #size {
   display: flex;
   gap: 5px;
+  margin-right: 2rem;
   align-items: center;
   justify-content: space-around;
 }
@@ -269,41 +268,6 @@ button:active {
   margin: auto;
 }
 
-/* TILES */
-
-#tiles {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.tile {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.tile.selected {
-  background-color: var(--accent);
-}
-
-.tile > img {
-  /* height: 3rem; */
-  width: 3rem;
-  image-rendering: pixelated;
-  object-fit: contain;
-  background: var(--transparency);
-}
-
-.tile > span {
-  width: 4rem;
-}
-
-.tile > button {
-  width: 1.5rem;
-  height: 1.5rem;
-}
-
 /* EXPORT */
 
 #export {
@@ -334,14 +298,12 @@ button:active {
 .palette-color.active-color {
   outline: 1px solid white;
   border: 1px solid black;
-  /* outline-offset: -1px; */
 }
 
 .palette-color::before {
   content: "";
   width: 100%;
   height: 100%;
-  /* background-image: repeating-conic-gradient(#f5f5f5 0% 25%, white 0% 50%); */
   background: var(--transparency);
   display: block;
   position: absolute;

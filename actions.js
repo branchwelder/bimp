@@ -1,5 +1,53 @@
-import { exporters, getEditorTarget } from "./utils";
+import { EditorView } from "@codemirror/view";
+import { EditorState } from "@codemirror/state";
+import { javascript } from "@codemirror/lang-javascript";
+import { editorSetup } from "./editor/editor";
+
 import { Bimp } from "./bimp";
+
+function executeNS(namespace, code) {
+  const func = function () {}.constructor;
+
+  const keys = Object.keys(namespace);
+  const vals = Object.values(namespace);
+
+  const f = new func(...keys, code);
+
+  return f(...vals);
+}
+
+function executeLayers(layers) {
+  // starting from the first layer, execute the layer program. each layer
+  // gets an array with all of the results of previous layers
+
+  const newLayers = [...layers];
+
+  const results = [];
+
+  for (let i = 0; i < newLayers.length; i++) {
+    if (newLayers[i].type == "code") {
+      let newBmp;
+      try {
+        const namespace = {
+          Bimp,
+          layers: results,
+        };
+
+        newBmp = executeNS(namespace, newLayers[i].program);
+
+        results.push(newBmp);
+        newLayers[i].bitmap = newBmp;
+      } catch (e) {
+        console.log("Error in layer", i);
+      }
+    } else {
+      // if the layer is not code just pass the bitmap through
+      results.push(newLayers[i].bitmap);
+    }
+  }
+
+  return newLayers;
+}
 
 export const actions = {
   undo: (state) => {
@@ -7,120 +55,203 @@ export const actions = {
       return {};
     }
     return {
-      bitmap: state.history[0],
-      history: state.history.slice(1),
+      changes: {
+        bitmap: state.history[0],
+        history: state.history.slice(1),
+      },
     };
   },
 
   setActiveColor: (state, newColor) => {
-    return { activeColor: newColor };
+    return { changes: { activeColor: newColor } };
   },
 
-  addLayer: (state) => {
+  setActiveTool: (state, tool) => {
+    return { changes: { activeTool: tool } };
+  },
+
+  addCodeLayer: (state, _, dispatch) => {
+    const layers = [...state.layers];
+    layers.push({
+      type: "code",
+      program: `const width = ${state.layers.at(-1).bitmap.width};
+const height = ${state.layers.at(-1).bitmap.height};
+const pixels = new Array(width * height).fill(0);
+
+return new Bimp(width, height, pixels);`,
+    });
+    const updatedIndex = state.layers.length;
+
+    const executed = executeLayers(layers);
+
     return {
-      layers: [...state.layers, Bimp.empty(state.width, state.height, 0)],
-      editorTarget: ["layers", state.layers.length],
+      changes: {
+        layers: executed,
+      },
+      postRender: () => {
+        dispatch("setActiveLayer", updatedIndex);
+      },
+    };
+  },
+
+  addDirectLayer: (state, _, dispatch) => {
+    const layers = [...state.layers];
+    layers.push({
+      bitmap: Bimp.empty(
+        state.layers.at(-1).bitmap.width,
+        state.layers.at(-1).bitmap.height,
+        0
+      ),
+      type: "direct",
+    });
+
+    const updatedIndex = state.layers.length;
+
+    return {
+      changes: {
+        layers: layers,
+      },
+      postRender: () => {
+        dispatch("setActiveLayer", updatedIndex);
+      },
     };
   },
 
   addColor: (state, newColor) => {
-    return { palette: [...state.palette, newColor] };
+    return { changes: { palette: [...state.palette, newColor] } };
   },
 
   updateColor: (state, { paletteIndex, component, newVal }) => {
     let updated = [...state.palette];
     updated[paletteIndex][component] = Number(newVal);
-    return { palette: updated };
+    return { changes: { palette: updated } };
   },
 
-  setActiveTool: (state, tool) => {
-    return { activeTool: tool };
+  execute: (state) => {
+    const newLayers = executeLayers(state.layers);
+    return { changes: { layers: newLayers } };
   },
 
-  setEditorTarget: (state, target) => {
-    return { editorTarget: target };
+  setProgram: (state, { program }, dispatch) => {
+    const newLayers = [...state.layers];
+    newLayers[state.activeLayer].program = program;
+
+    return {
+      changes: { layers: newLayers },
+      postRender: () => dispatch("execute"),
+    };
   },
 
-  applyTool: (state, pos) => {
-    // return { bitmap: state.bitmap[state.activeTool](pos, state.activeColor) };
-    if (state.activeTool === "code") return {};
-    let target = state.editorTarget[0];
+  setActiveLayer: (state, newLayerID, dispatch) => {
+    if (state.layers[newLayerID].type === "code") {
+      function makeState(program) {
+        return EditorState.create({
+          doc: program,
+          extensions: [editorSetup, javascript(), updateListener()],
+        });
+      }
 
-    let copy = [...state[target]];
+      function updateListener() {
+        return EditorView.updateListener.of((v) => {
+          const program = v.state.doc.toString();
+          dispatch("setProgram", { program });
+        });
+      }
 
-    copy[state.editorTarget[1]] = getEditorTarget(state)[state.activeTool](
+      state.editorView.setState(makeState(state.layers[newLayerID].program));
+
+      return {
+        changes: { activeLayer: newLayerID },
+        postRender: () => {
+          document.getElementById("editor").appendChild(state.editorView.dom);
+          dispatch("centerCanvas");
+        },
+      };
+    }
+
+    return {
+      changes: { activeLayer: newLayerID },
+      postRender: () => {
+        dispatch("centerCanvas");
+      },
+    };
+  },
+
+  applyTool: (state, pos, dispatch) => {
+    const active = state.layers[state.activeLayer];
+    const newLayers = [...state.layers];
+
+    if (active.type === "code") return { changes: {} };
+
+    newLayers[state.activeLayer].bitmap = active.bitmap[state.activeTool](
       pos,
       state.activeColor
     );
 
     return {
-      [target]: copy,
+      changes: {
+        layers: newLayers,
+      },
+      postRender: () => dispatch("execute"),
     };
   },
 
   snapshot: (state) => {
-    return { history: [state.bitmap, ...state.history] };
+    // TODO fix history with recent changes
+    console.log("SNAP");
+    return { changes: {} };
   },
 
-  resize: (state, dims) => {
-    const updated = state.layers.map((layer) => layer.resize(dims[0], dims[1]));
-    // return {
-    //   bitmap: state.bitmap.resize(dims[0], dims[1]),
-    //   history: [state.bitmap, ...state.history],
-    // };
+  resizeTarget: (state, [width, height], dispatch) => {
+    const newLayers = [...state.layers];
+
+    newLayers[state.activeLayer].bitmap = newLayers[
+      state.activeLayer
+    ].bitmap.resize(width, height);
+
     return {
-      layers: updated,
-      width: dims[0],
-      height: dims[1],
-      // history: [state.bitmap, ...state.history],
+      changes: {
+        layers: newLayers,
+      },
+      postRender: () => dispatch("execute"),
+    };
+  },
+
+  copyPixelArray: (state) => {
+    navigator.clipboard.writeText(
+      state.layers[state.activeLayer].bitmap.pixels
+    );
+    return {
+      changes: {},
     };
   },
 
   centerCanvas: (state) => {
-    const currentBitmap = getEditorTarget(state);
+    const currentBitmap = state.layers[state.activeLayer].bitmap;
     state.panZoom.setScaleXY({
       x: [0, currentBitmap.width * state.pixelScale],
       y: [0, currentBitmap.height * state.pixelScale],
     });
-    return {};
+    return { changes: {} };
   },
 
-  tile: (state, tile) => {
-    const target = state.editorTarget[0];
-    const copy = [...state[target]];
+  // download: (state, format) => {
+  //   if (!exporters.hasOwnProperty(format)) {
+  //     console.log("Oops! I don't know how to export to", format);
+  //     return;
+  //   }
 
-    copy[state.editorTarget[1]] = Bimp.fromTile(
-      state.width,
-      state.height,
-      tile
-    );
+  //   let element = document.createElement("a");
+  //   element.setAttribute(
+  //     "href",
+  //     exporters[format](state.bitmap, state.palette)
+  //   );
+  //   element.setAttribute("download", `${state.title}.${format}`);
+  //   element.style.display = "none";
+  //   document.body.appendChild(element);
+  //   element.click();
+  //   document.body.removeChild(element);
 
-    return {
-      [target]: copy,
-    };
-  },
-
-  newTile: (state) => {
-    return { tiles: [...state.tiles, getEditorTarget(state)] };
-  },
-
-  download: (state, format) => {
-    if (!exporters.hasOwnProperty(format)) {
-      console.log("Oops! I don't know how to export to", format);
-      return;
-    }
-
-    let element = document.createElement("a");
-    element.setAttribute(
-      "href",
-      exporters[format](state.bitmap, state.palette)
-    );
-    element.setAttribute("download", `${state.title}.${format}`);
-    element.style.display = "none";
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-
-    return {};
-  },
+  //   return { changes: {} };
+  // },
 };
