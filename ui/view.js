@@ -1,6 +1,5 @@
 import { html } from "lit-html";
 import { leftPane } from "./leftPane";
-import { bitmapToCanvas } from "../utils";
 
 function sizeControls(state, dispatch) {
   const current = state.layers[state.activeLayer].bitmap;
@@ -101,9 +100,7 @@ function layers(state, dispatch) {
         @click=${() => dispatch("setActiveLayer", index)}>
         <span>${index}</span>
         <div class="preview-container">
-          <img
-            class="pixelated"
-            src=${bitmapToCanvas(layer.bitmap, state.palette).toDataURL()} />
+          <canvas data-layerid=${layer.id} class="preview-canvas"></canvas>
         </div>
       </div>`
     )}

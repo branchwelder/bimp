@@ -9,12 +9,8 @@ export function addCanvasInteraction(canvas, state, dispatch) {
   function getPixelCoordinates(e) {
     let rect = canvas.getBoundingClientRect();
     return {
-      x: Math.floor(
-        (e.clientX - rect.left) / state.pixelScale / state.panZoom.scale()
-      ),
-      y: Math.floor(
-        (e.clientY - rect.top) / state.pixelScale / state.panZoom.scale()
-      ),
+      x: Math.floor((e.clientX - rect.left) / state.panZoom.scale()),
+      y: Math.floor((e.clientY - rect.top) / state.panZoom.scale()),
     };
   }
 
@@ -43,6 +39,7 @@ export function addCanvasInteraction(canvas, state, dispatch) {
 
     if (newPos.x == pos.x && newPos.y == pos.y) return; // return if still inside pixel
     pos = newPos;
+    if (pos.x < 0 || pos.y < 0) return; // return if out of bounds
 
     dispatch("applyTool", pos);
   });

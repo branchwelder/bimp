@@ -9,7 +9,7 @@
   --ui-edit: #2976a3;
   --ui-warning: #ee1111;
   --transparency: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill-opacity=".05"><rect width="50" height="50" /><rect x="50" y="50" width="50" height="50" /></svg>')
-    0 0 / 20px 20px #f8f8f8;
+    0 0 / 1px 1px #f8f8f8;
   font-family: sans-serif;
 }
 
@@ -132,6 +132,7 @@ button:active {
 .layer {
   display: flex;
   align-items: center;
+  height: 5rem;
 }
 
 .layer.selected {
@@ -144,14 +145,20 @@ button:active {
 
 .preview-container {
   display: flex;
-  max-height: 5rem;
   flex-grow: 1;
+  height: inherit;
+  justify-content: center;
 }
 
-.preview-container > img {
+.preview-canvas {
+  /* width: 100%; */
+  height: 100%;
+}
+
+/* .preview-container > img {
   flex-grow: 1;
   object-fit: contain;
-}
+} */
 
 #right-pane .flex-buttons {
   margin-top: auto;
@@ -223,9 +230,7 @@ button:active {
 
 canvas {
   image-rendering: pixelated;
-  box-shadow: 0 0 5px black;
   background: var(--transparency);
-  outline: 1px solid black;
 }
 
 /* CONTROL PANEL */
@@ -284,7 +289,7 @@ canvas {
 
 /* EXPORT */
 
-#export {
+/* #export {
   margin-top: auto;
 }
 
@@ -293,7 +298,7 @@ canvas {
   width: unset;
   padding-inline: 0.3rem;
   font-weight: 900;
-}
+} */
 
 /* COLOR PALETTE */
 
@@ -371,97 +376,4 @@ canvas {
 .edit-button:focus + .color-picker,
 .edit-color-container:focus-within .color-picker {
   display: flex;
-}
-
-/* COLOR PICKER */
-
-.color-picker {
-  top: 100%;
-  text-decoration: none;
-
-  display: none;
-  flex-direction: column;
-  position: absolute;
-  background-color: var(--dark2);
-  color: var(--ui-text);
-  outline: 1px solid var(--dark1);
-  box-shadow: 0 0 5px 0 black;
-  gap: 1px;
-  z-index: 10;
-}
-
-.color-preview {
-  position: relative;
-  width: 12rem;
-  height: 5rem;
-  flex-shrink: 0;
-}
-
-.color-preview::before {
-  content: "";
-  width: 100%;
-  height: 100%;
-  background: var(--transparency);
-  display: block;
-  position: absolute;
-}
-
-.color-preview::after {
-  content: "";
-  width: 100%;
-  height: 100%;
-  background: var(--color-preview);
-  display: block;
-  position: absolute;
-}
-
-.color-slider-label {
-  display: flex;
-  text-transform: uppercase;
-  font-size: smaller;
-  font-weight: bold;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.color-slider-label > span {
-  display: flex;
-  width: 2em;
-  text-align: center;
-}
-
-.color-slider-label i {
-  margin: auto;
-}
-
-.color-slider {
-  display: block;
-  margin: 0;
-  width: 100%;
-  background: linear-gradient(to right, var(--stops)), var(--transparency);
-  height: 2.2em;
-  appearance: none;
-  -moz-appearance: none;
-  -webkit-appearance: none;
-}
-
-.color-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 1em;
-  height: 2em;
-  background: transparent;
-  border: 1px solid black;
-  outline: 1px solid white;
-  cursor: pointer;
-  border-radius: 0.2em;
-}
-
-.color-slider::-moz-range-thumb {
-  width: 1em;
-  height: 2em;
-  background: transparent;
-  border: 1px solid black;
-  outline: 1px solid white;
-  cursor: pointer;
 }

@@ -16,7 +16,7 @@ function executeNS(namespace, code) {
   return f(...vals);
 }
 
-function executeLayers(layers) {
+function executeLayers(layers, palette) {
   // starting from the first layer, execute the layer program. each layer
   // gets an array with all of the results of previous layers
 
@@ -25,7 +25,8 @@ function executeLayers(layers) {
   const results = [];
 
   for (let i = 0; i < newLayers.length; i++) {
-    if (newLayers[i].type == "code") {
+    const layer = newLayers[i];
+    if (layer.type == "code") {
       let newBmp;
       try {
         const namespace = {
@@ -33,17 +34,18 @@ function executeLayers(layers) {
           layers: results,
         };
 
-        newBmp = executeNS(namespace, newLayers[i].program);
+        newBmp = executeNS(namespace, layer.program);
 
         results.push(newBmp);
-        newLayers[i].bitmap = newBmp;
+        layer.bitmap = newBmp;
       } catch (e) {
         console.log("Error in layer", i);
       }
     } else {
       // if the layer is not code just pass the bitmap through
-      results.push(newLayers[i].bitmap);
+      results.push(layer.bitmap);
     }
+    layer.canvas.updateOffscreenCanvas(layer.bitmap, palette);
   }
 
   return newLayers;
@@ -82,7 +84,7 @@ return new Bimp(width, height, pixels);`,
     });
     const updatedIndex = state.layers.length;
 
-    const executed = executeLayers(layers);
+    const executed = executeLayers(layers, state.palette);
 
     return {
       changes: {
@@ -117,18 +119,30 @@ return new Bimp(width, height, pixels);`,
     };
   },
 
+  refreshCanvas: (state) => {
+    const newLayers = [...state.layers];
+    newLayers.forEach((layer) => (layer.canvas.bitmap = null));
+
+    return {
+      changes: { layers: newLayers },
+    };
+  },
+
   addColor: (state, newColor) => {
     return { changes: { palette: [...state.palette, newColor] } };
   },
 
-  updateColor: (state, { paletteIndex, component, newVal }) => {
+  updateColor: (state, { paletteIndex, component, newVal }, dispatch) => {
     let updated = [...state.palette];
     updated[paletteIndex][component] = Number(newVal);
-    return { changes: { palette: updated } };
+    return {
+      changes: { palette: updated },
+      postRender: () => dispatch("refreshCanvas"),
+    };
   },
 
   execute: (state) => {
-    const newLayers = executeLayers(state.layers);
+    const newLayers = executeLayers(state.layers, state.palette);
     return { changes: { layers: newLayers } };
   },
 
@@ -228,9 +242,14 @@ return new Bimp(width, height, pixels);`,
 
   centerCanvas: (state) => {
     const currentBitmap = state.layers[state.activeLayer].bitmap;
+    // state.panZoom.setScaleXY({
+    //   x: [0, currentBitmap.width * state.pixelScale],
+    //   y: [0, currentBitmap.height * state.pixelScale],
+    // });
+
     state.panZoom.setScaleXY({
-      x: [0, currentBitmap.width * state.pixelScale],
-      y: [0, currentBitmap.height * state.pixelScale],
+      x: [0, currentBitmap.width],
+      y: [0, currentBitmap.height],
     });
     return { changes: {} };
   },
