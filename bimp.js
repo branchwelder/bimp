@@ -17,10 +17,15 @@ export class BimpCanvas {
   }
 
   transferOffscreenToCanvas(canvas) {
+    if (this.bitmap.width == 0 || this.bitmap.height == 0) return;
     canvas.width = this.bitmap.width;
     canvas.height = this.bitmap.height;
 
-    canvas.getContext("2d").drawImage(this.offscreenCanvas, 0, 0);
+    try {
+      canvas.getContext("2d").drawImage(this.offscreenCanvas, 0, 0);
+    } catch (e) {
+      console.log("error drawing to canvas");
+    }
   }
 
   draw(newBitmap, newPalette) {

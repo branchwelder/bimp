@@ -5,6 +5,8 @@ import { editorSetup } from "./editor/editor";
 
 import { Bimp } from "./bimp";
 
+let timeoutID = null;
+
 function executeNS(namespace, code) {
   const func = function () {}.constructor;
 
@@ -16,9 +18,12 @@ function executeNS(namespace, code) {
   return f(...vals);
 }
 
-function executeLayers(layers, palette) {
+function executeAll(layers, palette, startIndex) {
   // starting from the first layer, execute the layer program. each layer
   // gets an array with all of the results of previous layers
+  // index is the layer to start executing at
+
+  if (!startIndex) startIndex = 0;
 
   const newLayers = [...layers];
 
@@ -26,7 +31,8 @@ function executeLayers(layers, palette) {
 
   for (let i = 0; i < newLayers.length; i++) {
     const layer = newLayers[i];
-    if (layer.type == "code") {
+    if (i < startIndex) results.push(layer.bitmap);
+    else if (layer.type == "code") {
       let newBmp;
       try {
         const namespace = {
@@ -84,7 +90,7 @@ return new Bimp(width, height, pixels);`,
     });
     const updatedIndex = state.layers.length;
 
-    const executed = executeLayers(layers, state.palette);
+    const executed = executeAll(layers, state.palette);
 
     return {
       changes: {
@@ -141,8 +147,18 @@ return new Bimp(width, height, pixels);`,
     };
   },
 
+  executeTimeout: (state, _, dispatch) => {
+    if (timeoutID) clearTimeout(timeoutID);
+    timeoutID = setTimeout(() => dispatch("execute"), 500);
+
+    return {
+      changes: {},
+    };
+  },
+
   execute: (state) => {
-    const newLayers = executeLayers(state.layers, state.palette);
+    timeoutID = null;
+    const newLayers = executeAll(state.layers, state.palette);
     return { changes: { layers: newLayers } };
   },
 
@@ -152,7 +168,7 @@ return new Bimp(width, height, pixels);`,
 
     return {
       changes: { layers: newLayers },
-      postRender: () => dispatch("execute"),
+      postRender: () => dispatch("executeTimeout"),
     };
   },
 
@@ -195,18 +211,19 @@ return new Bimp(width, height, pixels);`,
     const active = state.layers[state.activeLayer];
     const newLayers = [...state.layers];
 
+    const layer = newLayers[state.activeLayer];
+
     if (active.type === "code") return { changes: {} };
 
-    newLayers[state.activeLayer].bitmap = active.bitmap[state.activeTool](
-      pos,
-      state.activeColor
-    );
+    layer.bitmap = active.bitmap[state.activeTool](pos, state.activeColor);
+
+    layer.canvas.updateOffscreenCanvas(layer.bitmap, state.palette);
 
     return {
       changes: {
         layers: newLayers,
       },
-      postRender: () => dispatch("execute"),
+      postRender: () => dispatch("executeTimeout"),
     };
   },
 
@@ -227,7 +244,7 @@ return new Bimp(width, height, pixels);`,
       changes: {
         layers: newLayers,
       },
-      postRender: () => dispatch("execute"),
+      postRender: () => dispatch("executeTimeout"),
     };
   },
 

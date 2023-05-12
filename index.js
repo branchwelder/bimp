@@ -112,7 +112,7 @@ function syncView() {
   syncCanvas(state, canvas);
 }
 
-function dispatch(action, args, cb) {
+async function dispatch(action, args, cb) {
   const { changes, postRender } = actions[action](GLOBAL_STATE, args, dispatch);
 
   Object.assign(GLOBAL_STATE, changes);
@@ -134,6 +134,7 @@ function init() {
       canvas: new BimpCanvas(layer.bitmap, defaultPalette),
     };
   });
+
   GLOBAL_STATE.layers = initialLayers;
   renderView(GLOBAL_STATE, dispatch);
 
