@@ -1,68 +1,10 @@
-export class BimpCanvas {
-  constructor(bitmap, palette) {
-    this.offscreenCanvas = new OffscreenCanvas(bitmap.width, bitmap.height);
-    this.ctx = this.offscreenCanvas.getContext("2d");
-    this.bitmap = null;
-    this.palette = null;
-    this.offscreenImageBitmap = null;
-
-    this.updateOffscreenCanvas(bitmap, palette);
-  }
-
-  updateOffscreenCanvas(newBitmap, newPalette) {
-    if (this.bitmap == newBitmap) return;
-    this.draw(newBitmap, newPalette);
-    this.bitmap = newBitmap;
-    this.palette = newPalette;
-  }
-
-  transferOffscreenToCanvas(canvas) {
-    if (this.bitmap.width == 0 || this.bitmap.height == 0) return;
-    canvas.width = this.bitmap.width;
-    canvas.height = this.bitmap.height;
-
-    try {
-      canvas.getContext("2d").drawImage(this.offscreenCanvas, 0, 0);
-    } catch (e) {
-      console.log("error drawing to canvas");
-    }
-  }
-
-  draw(newBitmap, newPalette) {
-    // Attempts to draw only the pixels that have changed if there is
-    // a previous bitmap specified
-
-    // If there is a previous canvas (or previous is a different size)
-    if (
-      this.bitmap == null ||
-      this.bitmap.width != newBitmap.width ||
-      this.bitmap.height != newBitmap.height
-    ) {
-      this.offscreenCanvas.width = newBitmap.width;
-      this.offscreenCanvas.height = newBitmap.height;
-      this.bitmap = null;
-    }
-
-    for (let y = 0; y < newBitmap.height; y++) {
-      for (let x = 0; x < newBitmap.width; x++) {
-        let val = newBitmap.pixel(x, y);
-
-        if (this.bitmap == null || this.bitmap.pixel(x, y) != val) {
-          const { r, g, b, a } = newPalette[val];
-          this.ctx.fillStyle = `rgb(${r * 255} ${g * 255} ${b * 255} / ${a})`;
-          this.ctx.fillRect(x, y, 1, 1);
-        }
-      }
-    }
-  }
-}
+"use strict";
 
 export class Bimp {
   constructor(width, height, pixels) {
     this.width = width;
     this.height = height;
-    this.pixels = pixels;
-    this.imageBitmap = null;
+    this.pixels = new Uint8ClampedArray(pixels);
   }
 
   static empty(width, height, color) {
@@ -151,5 +93,83 @@ export class Bimp {
       }
     }
     return this.draw(drawn);
+  }
+}
+
+export class BimpDirect extends Bimp {
+  constructor(width, height, pixels, bitDepth) {
+    super(width, height, pixels);
+    this.bitDepth = bitDepth;
+  }
+}
+
+export class BimpCanvas {
+  constructor(bitmap, palette) {
+    this.bitmap = null;
+    this.palette = palette;
+
+    this.offscreenCanvas = new OffscreenCanvas(
+      bitmap.width * this.palette.scale[0],
+      bitmap.height * this.palette.scale[1]
+    );
+    this.ctx = this.offscreenCanvas.getContext("2d");
+
+    this.updateOffscreenCanvas(bitmap, palette);
+  }
+
+  updateOffscreenCanvas(newBitmap, newPalette) {
+    if (this.bitmap == newBitmap) return;
+    this.draw(newBitmap, newPalette);
+    this.bitmap = newBitmap;
+    this.palette = newPalette;
+  }
+
+  transferOffscreenToCanvas(canvas) {
+    if (!this.bitmap || this.bitmap.width == 0 || this.bitmap.height == 0)
+      return;
+    canvas.width = this.bitmap.width * this.palette.scale[0];
+    canvas.height = this.bitmap.height * this.palette.scale[1];
+    // context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+
+    try {
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.drawImage(this.offscreenCanvas, 0, 0);
+    } catch (e) {
+      console.log("error drawing to canvas");
+    }
+  }
+
+  draw(newBitmap, newPalette) {
+    // Attempts to draw only the pixels that have changed if there is
+    // a previous bitmap specified
+
+    // If there is a previous canvas (or previous is a different size)
+    if (
+      this.bitmap == null ||
+      this.bitmap.width != newBitmap.width ||
+      this.bitmap.height != newBitmap.height
+    ) {
+      this.offscreenCanvas.width = newBitmap.width * this.palette.scale[0];
+      this.offscreenCanvas.height = newBitmap.height * this.palette.scale[1];
+      this.bitmap = null;
+    }
+
+    for (let y = 0; y < newBitmap.height; y++) {
+      for (let x = 0; x < newBitmap.width; x++) {
+        let paletteIndex = newBitmap.pixel(x, y);
+
+        if (this.bitmap == null || this.bitmap.pixel(x, y) != paletteIndex) {
+          this.ctx.translate(
+            x * this.palette.scale[0],
+            y * this.palette.scale[1]
+          );
+
+          newPalette.draw(paletteIndex, this.ctx, x, y);
+
+          this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        }
+      }
+    }
   }
 }

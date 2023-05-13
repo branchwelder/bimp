@@ -9,8 +9,12 @@ export function addCanvasInteraction(canvas, state, dispatch) {
   function getPixelCoordinates(e) {
     let rect = canvas.getBoundingClientRect();
     return {
-      x: Math.floor((e.clientX - rect.left) / state.panZoom.scale()),
-      y: Math.floor((e.clientY - rect.top) / state.panZoom.scale()),
+      x: Math.floor(
+        (e.clientX - rect.left) / state.panZoom.scale() / state.palette.scale[0]
+      ),
+      y: Math.floor(
+        (e.clientY - rect.top) / state.panZoom.scale() / state.palette.scale[1]
+      ),
     };
   }
 

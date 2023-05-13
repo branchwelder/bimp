@@ -1,80 +1,41 @@
 import { html } from "lit-html";
 
-export function rgbaColorPicker({ r, g, b, a }, onInput) {
+function colorInputSlider(current, index, onInput) {
+  let start = [...current];
+  let end = [...current];
+
+  start[index] = 0;
+  end[index] = 255;
+
+  return html`<label class="color-slider-label">
+    <span>
+      <i class="fa-solid fa-r fa-1x"></i>
+    </span>
+    <input
+      class="color-slider"
+      type="range"
+      min="0"
+      max="255"
+      step="1"
+      data-index=${index}
+      draggable="false"
+      @input=${onInput}
+      value=${current[index]}
+      style="--stops: rgb(${start[0]} ${start[1]} ${start[2]}), rgb(${end[0]} ${end[1]} ${end[2]});" />
+  </label>`;
+}
+
+export function rgbColorPicker([r, g, b], onInput) {
   return html`<div
     tabindex="0"
     draggable="false"
     class="color-picker"
-    style="--r: ${r}; --g: ${g}; --b: ${b}; --a: ${a};">
+    style="--r: ${r}; --g: ${g}; --b: ${b};">
     <div
       class="color-preview"
-      style="--color-preview: rgb(${r * 100}% ${g * 100}% ${b *
-      100}% / ${a}); font-size: 2rem;"></div>
-    <label class="color-slider-label">
-      <span>
-        <i class="fa-solid fa-r fa-1x"></i>
-      </span>
-      <input
-        class="color-slider"
-        type="range"
-        min="0"
-        max="1"
-        step="0.01"
-        data-component="r"
-        draggable="false"
-        @input=${onInput}
-        value=${r}
-        style="--stops: rgb(0% ${g * 100}% ${b * 100}% / ${a}), rgb(100% ${g *
-        100}% ${b * 100}% / ${a});" />
-    </label>
-    <label class="color-slider-label">
-      <span>
-        <i class="fa-solid fa-g fa-1x"></i>
-      </span>
-      <input
-        class="color-slider"
-        type="range"
-        min="0"
-        max="1"
-        step="0.01"
-        data-component="g"
-        draggable="false"
-        @input=${onInput}
-        value=${g}
-        style="--stops: rgb(${r * 100}% 0% ${b * 100}% / ${a}), rgb(${r *
-        100}% 100% ${b * 100}% / ${a});" />
-    </label>
-    <label class="color-slider-label">
-      <span>
-        <i class="fa-solid fa-b fa-1x"></i>
-      </span>
-      <input
-        class="color-slider"
-        type="range"
-        min="0"
-        max="1"
-        step="0.01"
-        data-component="b"
-        @input=${onInput}
-        value=${b}
-        style="--stops: rgb(${r * 100}% ${g * 100}% 0% / ${a}), rgb(${r *
-        100}% ${g * 100}% 100% / ${a});" />
-    </label>
-    <label class="color-slider-label">
-      <span>
-        <i class="fa-solid fa-a fa-1x"></i>
-      </span>
-      <input
-        class="color-slider"
-        type="range"
-        min="0"
-        max="1"
-        step="0.01"
-        @input=${onInput}
-        data-component="a"
-        value=${a}
-        style="--stops: rgb(${r * 100}% ${g * 100}% ${b * 100}% / 0), rgb(${r *
-        100}% ${g * 100}% ${b * 100}% / 1);" />
-    </label>
+      style="--color-preview: rgb(${r} ${g} ${b}); font-size: 2rem;"></div>
+    ${[r, g, b].map((color, index) =>
+      colorInputSlider([r, g, b], index, onInput)
+    )}
   </div>`;
 }

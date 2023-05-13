@@ -38,6 +38,7 @@ don't you want to mess with pixels
 
 ## ideas
 
+- toggle image rendering: pixelated
 - common preset sizes
 - favicon export... or set current bimp as favicon
 

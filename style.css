@@ -230,7 +230,6 @@ button:active {
 
 canvas {
   image-rendering: pixelated;
-  background: var(--transparency);
 }
 
 /* CONTROL PANEL */
@@ -331,9 +330,7 @@ canvas {
 
 .palette-color::after {
   content: "";
-  background-color: rgb(
-    calc(var(--r) * 100%) calc(var(--g) * 100%) calc(var(--b) * 100%) / var(--a)
-  );
+  background-color: rgb(var(--r) var(--g) var(--b));
   width: 100%;
   height: 100%;
   cursor: pointer;

@@ -46,6 +46,7 @@ function executeAll(layers, palette, startIndex) {
         layer.bitmap = newBmp;
       } catch (e) {
         console.log("Error in layer", i);
+        console.error(e);
       }
     } else {
       // if the layer is not code just pass the bitmap through
@@ -127,7 +128,10 @@ return new Bimp(width, height, pixels);`,
 
   refreshCanvas: (state) => {
     const newLayers = [...state.layers];
-    newLayers.forEach((layer) => (layer.canvas.bitmap = null));
+    newLayers.forEach((layer) => {
+      layer.canvas.bitmap = null;
+      layer.canvas.updateOffscreenCanvas(layer.bitmap, state.palette);
+    });
 
     return {
       changes: { layers: newLayers },
@@ -138,9 +142,10 @@ return new Bimp(width, height, pixels);`,
     return { changes: { palette: [...state.palette, newColor] } };
   },
 
-  updateColor: (state, { paletteIndex, component, newVal }, dispatch) => {
-    let updated = [...state.palette];
-    updated[paletteIndex][component] = Number(newVal);
+  updateColor: (state, { paletteIndex, index, newVal }, dispatch) => {
+    let updated = state.palette;
+    updated.entries[paletteIndex][index] = Number(newVal);
+
     return {
       changes: { palette: updated },
       postRender: () => dispatch("refreshCanvas"),
@@ -259,15 +264,11 @@ return new Bimp(width, height, pixels);`,
 
   centerCanvas: (state) => {
     const currentBitmap = state.layers[state.activeLayer].bitmap;
-    // state.panZoom.setScaleXY({
-    //   x: [0, currentBitmap.width * state.pixelScale],
-    //   y: [0, currentBitmap.height * state.pixelScale],
-    // });
-
     state.panZoom.setScaleXY({
-      x: [0, currentBitmap.width],
-      y: [0, currentBitmap.height],
+      x: [0, currentBitmap.width * state.palette.scale[0]],
+      y: [0, currentBitmap.height * state.palette.scale[1]],
     });
+
     return { changes: {} };
   },
 

@@ -1,5 +1,5 @@
-import { html, nothing } from "lit-html";
-import { rgbaColorPicker } from "./colorPicker";
+import { html } from "lit-html";
+import { rgbColorPicker } from "./colorPicker";
 
 function controlButtons(state, dispatch) {
   return html`<div class="flex-buttons">
@@ -16,38 +16,36 @@ function palette(state, dispatch) {
   return html` <div>
     <div class="control-header">
       <span>Palette</span>
-      <span
+      <!-- <span
         class="header-action"
         @click=${() => dispatch("addColor", { r: 1, g: 1, b: 1, a: 1 })}>
         <i class="fa-solid fa-plus"></i>
-      </span>
+      </span> -->
     </div>
     <div id="palette" class="palette">
-      ${state.palette.map(
-        (color, paletteIndex) =>
-          html`<div
-            class="palette-color ${paletteIndex === state.activeColor
-              ? "active-color"
-              : ""}"
-            data-color=${paletteIndex}
-            style="--r: ${color.r}; --g: ${color.g}; --b: ${color.b}; --a: ${color.a}"
-            @click=${() => dispatch("setActiveColor", Number(paletteIndex))}>
-            ${paletteIndex === 0
-              ? nothing
-              : html`<div class="edit-color-container">
-                  <a class="edit-button" href="#">
-                    <i class="fa-solid fa-pen fa-fw fa-2xs"></i>
-                  </a>
-                  ${rgbaColorPicker(state.palette[paletteIndex], (e) =>
-                    dispatch("updateColor", {
-                      paletteIndex,
-                      component: e.target.dataset.component,
-                      newVal: e.target.value,
-                    })
-                  )}
-                </div>`}
-          </div>`
-      )}
+      ${state.palette.entries.map((color, paletteIndex) => {
+        const [r, g, b] = state.palette.entries[paletteIndex];
+        return html`<div
+          class="palette-color ${paletteIndex === state.activeColor
+            ? "active-color"
+            : ""}"
+          data-color=${paletteIndex}
+          style="--r: ${r}; --g: ${g}; --b: ${b};"
+          @click=${() => dispatch("setActiveColor", Number(paletteIndex))}>
+          <div class="edit-color-container">
+            <a class="edit-button" href="#">
+              <i class="fa-solid fa-pen fa-fw fa-2xs"></i>
+            </a>
+            ${rgbColorPicker([r, g, b], (e) =>
+              dispatch("updateColor", {
+                paletteIndex,
+                index: Number(e.target.dataset.index),
+                newVal: e.target.value,
+              })
+            )}
+          </div>
+        </div>`;
+      })}
     </div>
   </div>`;
 }
