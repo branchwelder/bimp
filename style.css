@@ -78,13 +78,13 @@ button:active {
 
 /* Global */
 
-.container {
+.global-container {
   display: flex;
   height: 100vh;
   position: relative;
 }
 
-#left-pane {
+#components {
   background-color: var(--dark1);
   color: var(--ui-text);
   display: flex;
@@ -96,7 +96,7 @@ button:active {
   width: 10rem;
 }
 
-#center {
+#workspace {
   flex: 1;
   overflow: hidden;
   background-color: var(--dark2);
@@ -106,7 +106,7 @@ button:active {
   flex-direction: column;
 }
 
-#workspace {
+#canvas-container {
   flex-grow: 1;
   overflow: hidden;
   background-color: var(--dark2);
@@ -116,7 +116,7 @@ button:active {
 
 /* Right Pane */
 
-#right-pane {
+/* #right-pane {
   background-color: var(--dark1);
   color: var(--ui-text);
   display: flex;
@@ -127,7 +127,7 @@ button:active {
   z-index: 5;
   width: 10rem;
   overflow: hidden;
-}
+} */
 
 .layer {
   display: flex;
@@ -198,7 +198,7 @@ button:active {
   flex-shrink: 0;
 }
 
-#tool-group {
+.tool-group {
   display: flex;
   gap: 0.3rem;
 }
@@ -236,6 +236,7 @@ canvas {
 
 .control-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   padding: 0.4rem;
 }
@@ -285,19 +286,6 @@ canvas {
 .input-spinner i {
   margin: auto;
 }
-
-/* EXPORT */
-
-/* #export {
-  margin-top: auto;
-}
-
-#export button {
-  height: 1.5rem;
-  width: unset;
-  padding-inline: 0.3rem;
-  font-weight: 900;
-} */
 
 /* COLOR PALETTE */
 

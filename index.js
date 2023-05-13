@@ -139,7 +139,7 @@ function init() {
 
   canvas = document.getElementById("canvas");
   GLOBAL_STATE.panZoom = addPanZoom(
-    document.getElementById("workspace"),
+    document.getElementById("canvas-container"),
     GLOBAL_STATE
   );
 

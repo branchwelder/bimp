@@ -30,7 +30,8 @@ export function addPanZoom(el, state) {
   }
 
   listen("pointerdown", "", (e) => {
-    if (state.activeTool !== "move" && e.target.id !== "workspace") return;
+    if (state.activeTool !== "move" && e.target.id !== "canvas-container")
+      return;
 
     if (e.shiftKey || e.button === 2) {
       return;
@@ -62,7 +63,7 @@ export function addPanZoom(el, state) {
     mousedown = false;
   });
 
-  listen("mouseleave", "#workspace", (e) => {
+  listen("mouseleave", "#canvas-container", (e) => {
     mousedown = false;
   });
 

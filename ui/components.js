@@ -1,6 +1,32 @@
 import { html } from "lit-html";
 import { rgbColorPicker } from "./colorPicker";
 
+function layers(state, dispatch) {
+  return html`<div>
+    <div class="control-header">
+      <span>Bitmaps</span>
+      <div class="flex-buttons">
+        <button @click=${() => dispatch("addDirectLayer")}>
+          <i class="fa-solid fa-paintbrush"></i>
+        </button>
+        <button @click=${() => dispatch("addCodeLayer")}>
+          <i class="fa-solid fa-code"></i>
+        </button>
+      </div>
+    </div>
+    ${state.layers.map(
+      (layer, index) => html` <div
+        class="layer ${state.activeLayer === index ? "selected" : "unselected"}"
+        @click=${() => dispatch("setActiveLayer", index)}>
+        <span>${index}</span>
+        <div class="preview-container">
+          <canvas data-layerid=${layer.id} class="preview-canvas"></canvas>
+        </div>
+      </div>`
+    )}
+  </div>`;
+}
+
 function controlButtons(state, dispatch) {
   return html`<div class="flex-buttons">
     <!-- <button @click=${() => dispatch("undo")}>
@@ -12,15 +38,20 @@ function controlButtons(state, dispatch) {
   </div>`;
 }
 
-function palette(state, dispatch) {
+function palettes(state, dispatch) {
   return html` <div>
     <div class="control-header">
-      <span>Palette</span>
+      <span>Palettes</span>
       <!-- <span
         class="header-action"
         @click=${() => dispatch("addColor", { r: 1, g: 1, b: 1, a: 1 })}>
         <i class="fa-solid fa-plus"></i>
       </span> -->
+      <div class="flex-buttons">
+        <button @click=${() => dispatch("addPalette")}>
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
     </div>
     <div id="palette" class="palette">
       ${state.palette.entries.map((color, paletteIndex) => {
@@ -65,7 +96,8 @@ function exportButtons(state, dispatch) {
   </div>`;
 }
 
-export function leftPane(state, dispatch) {
-  return html`${palette(state, dispatch)} ${controlButtons(state, dispatch)}
+export function components(state, dispatch) {
+  return html`${palettes(state, dispatch)} ${controlButtons(state, dispatch)}
+    ${layers(state, dispatch)}
     <!-- ${exportButtons(state, dispatch)} -->`;
 }
