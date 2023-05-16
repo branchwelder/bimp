@@ -7,13 +7,17 @@ export function addCanvasInteraction(canvas, state, dispatch) {
   let pos = { x: 0, y: 0 };
 
   function getPixelCoordinates(e) {
+    const active = state.layers[state.activeLayer];
+
     let rect = canvas.getBoundingClientRect();
     return {
       x: Math.floor(
-        (e.clientX - rect.left) / state.panZoom.scale() / state.palette.scale[0]
+        (e.clientX - rect.left) /
+          state.panZoom.scale() /
+          active.palette.scale[0]
       ),
       y: Math.floor(
-        (e.clientY - rect.top) / state.panZoom.scale() / state.palette.scale[1]
+        (e.clientY - rect.top) / state.panZoom.scale() / active.palette.scale[1]
       ),
     };
   }

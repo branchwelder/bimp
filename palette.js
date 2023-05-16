@@ -1,14 +1,14 @@
 class Palette {
   constructor(entries, scale, drawFunc, bitDepth) {
     if (bitDepth) {
-      if (Math.sqrt(entries.length) > bitDepth) {
+      if (Math.log2(entries.length) > bitDepth) {
         throw new Error(
           "Error creating Palette: too many entries for specified bit depth"
         );
       }
       this.bitDepth = bitDepth;
     } else {
-      this.bitDepth = Math.ceil(Math.sqrt(entries.length));
+      this.bitDepth = Math.ceil(Math.log2(entries.length));
     }
 
     this.entries = entries.map((entry) => {
@@ -17,11 +17,15 @@ class Palette {
       }
       return entry;
     });
-    Object.freeze(this.entries);
+    // Object.freeze(this.entries);
 
     this.scale = scale ?? [1, 1];
 
     this.drawFunc = drawFunc;
+  }
+
+  addEntry(entry) {
+    this.entries.push(entry);
   }
 
   static getRGB([r, g, b]) {
@@ -54,8 +58,8 @@ class Palette {
 }
 
 class PixelPalette extends Palette {
-  constructor(entries, scale) {
-    super(entries, scale);
+  constructor(entries) {
+    super(entries, [1, 1]);
     this.drawFunc = this.drawPixel;
   }
 
@@ -142,7 +146,7 @@ const palette4 = new Palette(p4, [20, 20]);
 
 const palette16 = new Palette(p16, [20, 20]);
 
-const pixel8 = new PixelPalette(p8, [1, 1]);
+const pixel8 = new PixelPalette(p8);
 const dotPalette = new Palette(p8, [100, 100], dots);
 const booleanMask = new Palette(p2, [1, 1], squares);
 

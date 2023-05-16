@@ -3,7 +3,8 @@ import { EditorState } from "@codemirror/state";
 import { javascript } from "@codemirror/lang-javascript";
 import { editorSetup } from "./editor/editor";
 
-import { Bimp } from "./bimp";
+import { Bimp, BimpCanvas } from "./bimp";
+import { pixel8 } from "./palette";
 
 let timeoutID = null;
 
@@ -18,7 +19,7 @@ function executeNS(namespace, code) {
   return f(...vals);
 }
 
-function executeAll(layers, palette, startIndex) {
+function executeAll(layers, startIndex) {
   // starting from the first layer, execute the layer program. each layer
   // gets an array with all of the results of previous layers
   // index is the layer to start executing at
@@ -52,7 +53,7 @@ function executeAll(layers, palette, startIndex) {
       // if the layer is not code just pass the bitmap through
       results.push(layer.bitmap);
     }
-    layer.canvas.updateOffscreenCanvas(layer.bitmap, palette);
+    layer.canvas.updateOffscreenCanvas(layer.bitmap, layer.palette);
   }
 
   return newLayers;
@@ -80,18 +81,22 @@ export const actions = {
   },
 
   addCodeLayer: (state, _, dispatch) => {
+    const newBimp = Bimp.empty(10, 10, 0);
     const layers = [...state.layers];
     layers.push({
+      id: "testcode",
       type: "code",
-      program: `const width = ${state.layers.at(-1).bitmap.width};
-const height = ${state.layers.at(-1).bitmap.height};
+      bitmap: newBimp,
+      program: `const width = 10;
+const height = 10;
 const pixels = new Array(width * height).fill(0);
 
 return new Bimp(width, height, pixels);`,
+      canvas: new BimpCanvas(newBimp, pixel8),
     });
     const updatedIndex = state.layers.length;
 
-    const executed = executeAll(layers, state.palette);
+    const executed = executeAll(layers);
 
     return {
       changes: {
@@ -103,15 +108,61 @@ return new Bimp(width, height, pixels);`,
     };
   },
 
-  addDirectLayer: (state, _, dispatch) => {
+  bimpFromImage: (state, img, dispatch) => {
+    const { bitmap, palette } = Bimp.fromImage(img);
+    console.log(bitmap);
+    console.log(palette.entries.length, palette.bitDepth);
+
     const layers = [...state.layers];
     layers.push({
-      bitmap: Bimp.empty(
-        state.layers.at(-1).bitmap.width,
-        state.layers.at(-1).bitmap.height,
-        0
-      ),
+      id: "test",
+      bitmap: bitmap,
+      type: "image",
+      palette: palette,
+      canvas: new BimpCanvas(bitmap, palette),
+    });
+
+    const updatedIndex = state.layers.length;
+
+    return {
+      changes: {
+        layers: layers,
+      },
+      postRender: () => {
+        dispatch("setActiveLayer", updatedIndex);
+      },
+    };
+  },
+
+  addImageLayer: (state, e, dispatch) => {
+    const picture = new FileReader();
+
+    picture.readAsDataURL(e.target.files[0]);
+    picture.addEventListener("load", (e) => {
+      let img = new Image();
+      img.onload = function () {
+        dispatch("bimpFromImage", img);
+      };
+      img.src = e.target.result;
+    });
+
+    return {
+      changes: {},
+    };
+  },
+
+  addDirectLayer: (state, _, dispatch) => {
+    const newBimp = Bimp.empty(
+      state.layers.at(-1).bitmap.width,
+      state.layers.at(-1).bitmap.height,
+      0
+    );
+    const layers = [...state.layers];
+    layers.push({
+      id: "test",
+      bitmap: newBimp,
       type: "direct",
+      canvas: new BimpCanvas(newBimp, pixel8),
     });
 
     const updatedIndex = state.layers.length;
@@ -130,7 +181,7 @@ return new Bimp(width, height, pixels);`,
     const newLayers = [...state.layers];
     newLayers.forEach((layer) => {
       layer.canvas.bitmap = null;
-      layer.canvas.updateOffscreenCanvas(layer.bitmap, state.palette);
+      layer.canvas.updateOffscreenCanvas(layer.bitmap, layer.palette);
     });
 
     return {
@@ -138,16 +189,21 @@ return new Bimp(width, height, pixels);`,
     };
   },
 
-  addColor: (state, newColor) => {
-    return { changes: { palette: [...state.palette, newColor] } };
-  },
+  // addColor: (state, newColor) => {
+  //   // const active = state.layers[state.activeLayer];
+
+  //   return { changes: { palette: [...state.palette, newColor] } };
+  // },
 
   updateColor: (state, { paletteIndex, index, newVal }, dispatch) => {
-    let updated = state.palette;
+    const newLayers = [...state.layers];
+
+    let updated = newLayers[state.activeLayer].palette;
     updated.entries[paletteIndex][index] = Number(newVal);
+    newLayers[state.activeLayer].palette = updated;
 
     return {
-      changes: { palette: updated },
+      changes: { layers: newLayers },
       postRender: () => dispatch("refreshCanvas"),
     };
   },
@@ -163,7 +219,7 @@ return new Bimp(width, height, pixels);`,
 
   execute: (state) => {
     timeoutID = null;
-    const newLayers = executeAll(state.layers, state.palette);
+    const newLayers = executeAll(state.layers);
     return { changes: { layers: newLayers } };
   },
 
@@ -222,7 +278,7 @@ return new Bimp(width, height, pixels);`,
 
     layer.bitmap = active.bitmap[state.activeTool](pos, state.activeColor);
 
-    layer.canvas.updateOffscreenCanvas(layer.bitmap, state.palette);
+    layer.canvas.updateOffscreenCanvas(layer.bitmap, layer.palette);
 
     return {
       changes: {
@@ -263,10 +319,13 @@ return new Bimp(width, height, pixels);`,
   },
 
   centerCanvas: (state) => {
-    const currentBitmap = state.layers[state.activeLayer].bitmap;
+    const currentLayer = state.layers[state.activeLayer];
+    const currentBitmap = currentLayer.bitmap;
+    const palette = currentLayer.palette;
+
     state.panZoom.setScaleXY({
-      x: [0, currentBitmap.width * state.palette.scale[0]],
-      y: [0, currentBitmap.height * state.palette.scale[1]],
+      x: [0, currentBitmap.width * palette.scale[0]],
+      y: [0, currentBitmap.height * palette.scale[1]],
     });
 
     return { changes: {} };

@@ -1,10 +1,12 @@
 "use strict";
+import { Palette, PixelPalette } from "./palette";
 
 export class Bimp {
   constructor(width, height, pixels) {
     this.width = width;
     this.height = height;
     this.pixels = new Uint8ClampedArray(pixels);
+    // this.palette = palette;
   }
 
   static empty(width, height, color) {
@@ -24,6 +26,40 @@ export class Bimp {
     }
 
     return new Bimp(width, height, tiled);
+  }
+
+  static fromImage(img) {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const width = img.width;
+    const height = img.height;
+    canvas.width = width;
+    canvas.height = height;
+
+    ctx.drawImage(img, 0, 0);
+    const imData = ctx.getImageData(0, 0, width, height).data;
+
+    const colorTable = [];
+    const reverseColorTable = {};
+    const pixels = [];
+
+    for (let i = 0; i < imData.length; i += 4) {
+      const colorArr = [imData[i], imData[i + 1], imData[i + 2]];
+      const colorKey = colorArr.toString();
+      if (!(colorKey in reverseColorTable)) {
+        // if we have not already seen the entry, add it to the color table
+        colorTable.push(colorArr);
+        // and update the reverse color table
+        reverseColorTable[colorKey] = colorTable.length - 1;
+      }
+      // then push the color array to the pixels
+      pixels.push(reverseColorTable[colorKey]);
+    }
+
+    const palette = new PixelPalette(colorTable);
+    const bitmap = new Bimp(width, height, pixels);
+
+    return { bitmap, palette };
   }
 
   resize(width, height) {

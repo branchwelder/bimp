@@ -2,6 +2,7 @@
 
 .color-picker {
   top: 100%;
+  right: 0;
   text-decoration: none;
 
   display: none;

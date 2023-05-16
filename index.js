@@ -16,15 +16,18 @@ const testLayers = [
     bitmap: new Bimp(3, 3, [5, 1, 0, 1, 5, 1, 0, 5, 0]),
     type: "direct",
     program: null,
+    palette: pixel8,
   },
   {
     id: "layer-sdfg",
     bitmap: Bimp.empty(1, 1, 0),
     type: "code",
+    palette: pixel8,
     program: `return Bimp.fromTile(layers[0].width * 10, layers[0].height * 10, layers[0]);`,
   },
   {
     id: "layer-dfgh",
+    palette: pixel8,
     bitmap: Bimp.empty(16, 16, 0),
     type: "code",
     program: `const pix = [];
@@ -41,6 +44,7 @@ const testLayers = [
   {
     id: "layer-fghj",
     type: "code",
+    palette: pixel8,
     bitmap: Bimp.empty(16, 16, 0),
     program: `const width = 16;
 const height = 16;
@@ -129,12 +133,13 @@ function init() {
       bitmap: layer.bitmap,
       type: layer.type,
       program: layer.program,
-      canvas: new BimpCanvas(layer.bitmap, pixel8),
+      palette: layer.palette,
+      canvas: new BimpCanvas(layer.bitmap, layer.palette),
     };
   });
 
   GLOBAL_STATE.layers = initialLayers;
-  GLOBAL_STATE.palette = pixel8;
+  // GLOBAL_STATE.palette = pixel8;
   renderView(GLOBAL_STATE, dispatch);
 
   canvas = document.getElementById("canvas");

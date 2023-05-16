@@ -155,6 +155,13 @@ button:active {
   height: 100%;
 }
 
+.new-bitmap-buttons {
+  /* align-self: flex-end; */
+  margin-top: auto;
+  padding: 0.3rem;
+  justify-content: center;
+}
+
 /* .preview-container > img {
   flex-grow: 1;
   object-fit: contain;
@@ -290,13 +297,20 @@ canvas {
 /* COLOR PALETTE */
 
 .palette {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(2.5rem, 1fr));
+  background-color: var(--dark1);
+  padding: 0.3rem;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  width: 3rem;
+  right: 0;
+  max-height: 100%;
   gap: 1px;
 }
 
 .palette-color {
   aspect-ratio: 1;
+  flex: 1;
   cursor: pointer;
   position: relative;
 }

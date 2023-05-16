@@ -1,17 +1,9 @@
 import { html } from "lit-html";
-import { rgbColorPicker } from "./colorPicker";
 
 function layers(state, dispatch) {
   return html`<div>
-    <div class="control-header">
-      <span>Bitmaps</span>
-      <div class="flex-buttons">
-        <button @click=${() => dispatch("addDirectLayer")}>
-          <i class="fa-solid fa-paintbrush"></i>
-        </button>
-        <button @click=${() => dispatch("addCodeLayer")}>
-          <i class="fa-solid fa-code"></i>
-        </button>
+      <div class="control-header">
+        <span>Bitmaps</span>
       </div>
     </div>
     ${state.layers.map(
@@ -24,7 +16,25 @@ function layers(state, dispatch) {
         </div>
       </div>`
     )}
-  </div>`;
+    <div class="flex-buttons new-bitmap-buttons">
+      <button>
+        <label for="imgUpload">
+          <i class="fa-solid fa-image"></i>
+        </label>
+        <input
+          type="file"
+          id="imgUpload"
+          style="display:none;"
+          @change=${(e) => dispatch("addImageLayer", e)} />
+      </button>
+
+      <button @click=${() => dispatch("addDirectLayer")}>
+        <i class="fa-solid fa-paintbrush"></i>
+      </button>
+      <button @click=${() => dispatch("addCodeLayer")}>
+        <i class="fa-solid fa-code"></i>
+      </button>
+    </div>`;
 }
 
 function controlButtons(state, dispatch) {
@@ -35,49 +45,6 @@ function controlButtons(state, dispatch) {
     <button @click=${() => dispatch("centerCanvas")}>
       <i class="fa-solid fa-arrows-to-dot fa-fw"></i>
     </button>
-  </div>`;
-}
-
-function palettes(state, dispatch) {
-  return html` <div>
-    <div class="control-header">
-      <span>Palettes</span>
-      <!-- <span
-        class="header-action"
-        @click=${() => dispatch("addColor", { r: 1, g: 1, b: 1, a: 1 })}>
-        <i class="fa-solid fa-plus"></i>
-      </span> -->
-      <div class="flex-buttons">
-        <button @click=${() => dispatch("addPalette")}>
-          <i class="fa-solid fa-plus"></i>
-        </button>
-      </div>
-    </div>
-    <div id="palette" class="palette">
-      ${state.palette.entries.map((color, paletteIndex) => {
-        const [r, g, b] = state.palette.entries[paletteIndex];
-        return html`<div
-          class="palette-color ${paletteIndex === state.activeColor
-            ? "active-color"
-            : ""}"
-          data-color=${paletteIndex}
-          style="--r: ${r}; --g: ${g}; --b: ${b};"
-          @click=${() => dispatch("setActiveColor", Number(paletteIndex))}>
-          <div class="edit-color-container">
-            <a class="edit-button" href="#">
-              <i class="fa-solid fa-pen fa-fw fa-2xs"></i>
-            </a>
-            ${rgbColorPicker([r, g, b], (e) =>
-              dispatch("updateColor", {
-                paletteIndex,
-                index: Number(e.target.dataset.index),
-                newVal: e.target.value,
-              })
-            )}
-          </div>
-        </div>`;
-      })}
-    </div>
   </div>`;
 }
 
@@ -97,7 +64,6 @@ function exportButtons(state, dispatch) {
 }
 
 export function components(state, dispatch) {
-  return html`${palettes(state, dispatch)} ${controlButtons(state, dispatch)}
-    ${layers(state, dispatch)}
+  return html`${controlButtons(state, dispatch)} ${layers(state, dispatch)}
     <!-- ${exportButtons(state, dispatch)} -->`;
 }
