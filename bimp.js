@@ -77,7 +77,7 @@ export class Bimp {
   }
 
   make2d() {
-    let copy = this.pixels.slice();
+    let copy = Array.from(this.pixels).slice();
     let newArray = [];
     while (copy.length > 0) newArray.push(copy.splice(0, this.width));
     return newArray;

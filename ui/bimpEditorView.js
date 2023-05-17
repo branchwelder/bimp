@@ -1,4 +1,5 @@
 import { html } from "lit-html";
+import { exportButtons } from "./exportButtons";
 
 export function bimpEditorView(state, dispatch) {
   return html`<div id="toolbar">
@@ -11,6 +12,7 @@ export function bimpEditorView(state, dispatch) {
           <i class="fa-solid fa-up-down-left-right"></i>
         </div>
       </div>
+      ${exportButtons(state, dispatch)}
     </div>
     <div id="editor"></div>`;
 }

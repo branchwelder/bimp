@@ -8,6 +8,8 @@ import { pixel8 } from "./palette";
 
 let timeoutID = null;
 
+import { exporters } from "./utils";
+
 function executeNS(namespace, code) {
   const func = function () {}.constructor;
 
@@ -331,23 +333,25 @@ return new Bimp(width, height, pixels);`,
     return { changes: {} };
   },
 
-  // download: (state, format) => {
-  //   if (!exporters.hasOwnProperty(format)) {
-  //     console.log("Oops! I don't know how to export to", format);
-  //     return;
-  //   }
+  download: (state, format) => {
+    if (!exporters.hasOwnProperty(format)) {
+      console.log("Oops! I don't know how to export to", format);
+      return;
+    }
 
-  //   let element = document.createElement("a");
-  //   element.setAttribute(
-  //     "href",
-  //     exporters[format](state.bitmap, state.palette)
-  //   );
-  //   element.setAttribute("download", `${state.title}.${format}`);
-  //   element.style.display = "none";
-  //   document.body.appendChild(element);
-  //   element.click();
-  //   document.body.removeChild(element);
+    const active = state.layers[state.activeLayer];
 
-  //   return { changes: {} };
-  // },
+    let element = document.createElement("a");
+    element.setAttribute(
+      "href",
+      exporters[format](active.bitmap, active.palette)
+    );
+    element.setAttribute("download", `${state.title}.${format}`);
+    element.style.display = "none";
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+
+    return { changes: {} };
+  },
 };

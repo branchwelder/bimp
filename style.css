@@ -294,6 +294,14 @@ canvas {
   margin: auto;
 }
 
+#export {
+  margin-left: auto;
+}
+
+#export button {
+  width: auto;
+}
+
 /* COLOR PALETTE */
 
 .palette {
