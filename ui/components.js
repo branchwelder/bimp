@@ -34,36 +34,9 @@ function layers(state, dispatch) {
       <button @click=${() => dispatch("addCodeLayer")}>
         <i class="fa-solid fa-code"></i>
       </button>
-    </div>`;
-}
-
-function controlButtons(state, dispatch) {
-  return html`<div class="flex-buttons">
-    <!-- <button @click=${() => dispatch("undo")}>
-      <i class="fa-solid fa-rotate-left fa-fw"></i>
-    </button> -->
-    <button @click=${() => dispatch("centerCanvas")}>
-      <i class="fa-solid fa-arrows-to-dot fa-fw"></i>
-    </button>
-  </div>`;
-}
-
-function exportButtons(state, dispatch) {
-  return html`<div id="export">
-    <div class="control-header">
-      <span>Export</span>
-    </div>
-    <div class="flex-buttons">
-      <button @click=${() => dispatch("download", "txt")}>TXT</button>
-      <button @click=${() => dispatch("download", "jpg")}>JPG</button>
-      <button @click=${() => dispatch("download", "png")}>PNG</button>
-      <button @click=${() => dispatch("download", "bmp")}>BMP</button>
-      <button @click=${() => dispatch("download", "json")}>JSON</button>
-    </div>
-  </div>`;
+    </div> `;
 }
 
 export function components(state, dispatch) {
-  return html`${controlButtons(state, dispatch)} ${layers(state, dispatch)}
-    <!-- ${exportButtons(state, dispatch)} -->`;
+  return html`${layers(state, dispatch)}`;
 }

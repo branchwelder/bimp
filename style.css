@@ -116,7 +116,7 @@ button:active {
 
 /* Right Pane */
 
-/* #right-pane {
+#right-pane {
   background-color: var(--dark1);
   color: var(--ui-text);
   display: flex;
@@ -126,8 +126,8 @@ button:active {
   box-shadow: 0 0 5px 0px black;
   z-index: 5;
   width: 10rem;
-  overflow: hidden;
-} */
+  /* overflow: hidden; */
+}
 
 .layer {
   display: flex;
@@ -162,13 +162,7 @@ button:active {
   justify-content: center;
 }
 
-/* .preview-container > img {
-  flex-grow: 1;
-  object-fit: contain;
-} */
-
 #right-pane .flex-buttons {
-  margin-top: auto;
   padding: 0.3rem;
 }
 
@@ -244,12 +238,9 @@ canvas {
 .control-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.4rem;
-}
-
-.header-action {
-  cursor: pointer;
+  padding: 0.4rem 0.4rem 0 0.4rem;
+  text-transform: uppercase;
+  font-size: small;
 }
 
 /* DIMENSIONS */
@@ -307,18 +298,22 @@ canvas {
 .palette {
   background-color: var(--dark1);
   padding: 0.3rem;
-  position: absolute;
   display: flex;
   flex-direction: column;
-  width: 3rem;
-  right: 0;
-  max-height: 100%;
   gap: 1px;
+}
+
+.palette-color-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .palette-color {
   aspect-ratio: 1;
-  flex: 1;
+  display: flex;
+  height: 3rem;
+  width: 3rem;
   cursor: pointer;
   position: relative;
 }

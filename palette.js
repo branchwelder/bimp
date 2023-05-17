@@ -69,7 +69,10 @@ class PixelPalette extends Palette {
   }
 }
 
-const p2 = [0, 1];
+const p2 = [
+  [0, 0, 0],
+  [255, 255, 255],
+];
 
 const p4 = [
   [0, 0, 0],
@@ -146,8 +149,10 @@ const palette4 = new Palette(p4, [20, 20]);
 
 const palette16 = new Palette(p16, [20, 20]);
 
+const pixel2 = new PixelPalette(p2);
 const pixel8 = new PixelPalette(p8);
+
 const dotPalette = new Palette(p8, [100, 100], dots);
 const booleanMask = new Palette(p2, [1, 1], squares);
 
-export { pixel8, booleanMask, Palette, PixelPalette };
+export { pixel8, pixel2, booleanMask, Palette, PixelPalette };

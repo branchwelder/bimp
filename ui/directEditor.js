@@ -1,5 +1,4 @@
 import { html } from "lit-html";
-import { colorPalette } from "./paletteEditor";
 
 function sizeControls(state, dispatch) {
   const current = state.layers[state.activeLayer].bitmap;
@@ -64,33 +63,32 @@ function sizeControls(state, dispatch) {
 }
 
 function toolbar(state, dispatch) {
-  return html`${colorPalette(state, dispatch)}
-    <div id="toolbar">
-      <div class="tool-group">
-        ${sizeControls(state, dispatch)}
-        <div
-          class="tool-select ${state.activeTool == "brush"
-            ? "selected"
-            : "not-selected"}"
-          @click=${() => dispatch("setActiveTool", "brush")}>
-          <i class="fa-solid fa-paintbrush"></i>
-        </div>
-        <div
-          class="tool-select ${state.activeTool == "flood"
-            ? "selected"
-            : "not-selected"}"
-          @click=${() => dispatch("setActiveTool", "flood")}>
-          <i class="fa-solid fa-fill-drip"></i>
-        </div>
-        <div
-          class="tool-select ${state.activeTool == "move"
-            ? "selected"
-            : "not-selected"}"
-          @click=${() => dispatch("setActiveTool", "move")}>
-          <i class="fa-solid fa-up-down-left-right"></i>
-        </div>
+  return html` <div id="toolbar">
+    <div class="tool-group">
+      ${sizeControls(state, dispatch)}
+      <div
+        class="tool-select ${state.activeTool == "brush"
+          ? "selected"
+          : "not-selected"}"
+        @click=${() => dispatch("setActiveTool", "brush")}>
+        <i class="fa-solid fa-paintbrush"></i>
       </div>
-    </div>`;
+      <div
+        class="tool-select ${state.activeTool == "flood"
+          ? "selected"
+          : "not-selected"}"
+        @click=${() => dispatch("setActiveTool", "flood")}>
+        <i class="fa-solid fa-fill-drip"></i>
+      </div>
+      <div
+        class="tool-select ${state.activeTool == "move"
+          ? "selected"
+          : "not-selected"}"
+        @click=${() => dispatch("setActiveTool", "move")}>
+        <i class="fa-solid fa-up-down-left-right"></i>
+      </div>
+    </div>
+  </div>`;
 }
 
 export function directEditor(state, dispatch) {

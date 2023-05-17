@@ -8,24 +8,27 @@ export function colorPalette(state, dispatch) {
         const active = state.layers[state.activeLayer];
         const [r, g, b] = active.palette.entries[paletteIndex];
 
-        return html`<div
-          class="palette-color ${paletteIndex === state.activeColor
-            ? "active-color"
-            : ""}"
-          data-color=${paletteIndex}
-          style="--r: ${r}; --g: ${g}; --b: ${b};"
-          @click=${() => dispatch("setActiveColor", Number(paletteIndex))}>
-          <div class="edit-color-container">
-            <a class="edit-button" href="#">
-              <i class="fa-solid fa-pen fa-fw fa-2xs"></i>
-            </a>
-            ${rgbColorPicker([r, g, b], (e) =>
-              dispatch("updateColor", {
-                paletteIndex,
-                index: Number(e.target.dataset.index),
-                newVal: e.target.value,
-              })
-            )}
+        return html`<div class="palette-color-container">
+          <div>${paletteIndex}</div>
+          <div
+            class="palette-color ${paletteIndex === state.activeColor
+              ? "active-color"
+              : ""}"
+            data-color=${paletteIndex}
+            style="--r: ${r}; --g: ${g}; --b: ${b};"
+            @click=${() => dispatch("setActiveColor", Number(paletteIndex))}>
+            <div class="edit-color-container">
+              <a class="edit-button" href="#">
+                <i class="fa-solid fa-pen fa-fw fa-2xs"></i>
+              </a>
+              ${rgbColorPicker([r, g, b], (e) =>
+                dispatch("updateColor", {
+                  paletteIndex,
+                  index: Number(e.target.dataset.index),
+                  newVal: e.target.value,
+                })
+              )}
+            </div>
           </div>
         </div>`;
       }

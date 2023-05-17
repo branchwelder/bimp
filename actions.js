@@ -4,7 +4,7 @@ import { javascript } from "@codemirror/lang-javascript";
 import { editorSetup } from "./editor/editor";
 
 import { Bimp, BimpCanvas } from "./bimp";
-import { pixel8 } from "./palette";
+import { pixel2 } from "./palette";
 
 let timeoutID = null;
 
@@ -89,12 +89,13 @@ export const actions = {
       id: "testcode",
       type: "code",
       bitmap: newBimp,
+      palette: pixel2,
       program: `const width = 10;
 const height = 10;
 const pixels = new Array(width * height).fill(0);
 
 return new Bimp(width, height, pixels);`,
-      canvas: new BimpCanvas(newBimp, pixel8),
+      canvas: new BimpCanvas(newBimp, pixel2),
     });
     const updatedIndex = state.layers.length;
 

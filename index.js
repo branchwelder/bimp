@@ -8,67 +8,67 @@ import { actions } from "./actions";
 import { view } from "./ui/view";
 
 import { Bimp, BimpCanvas } from "./bimp";
-import { pixel8 } from "./palette";
+import { pixel2, pixel8 } from "./palette";
 
 const testLayers = [
   {
     id: "layer-asdf",
-    bitmap: new Bimp(3, 3, [5, 1, 0, 1, 5, 1, 0, 5, 0]),
+    bitmap: new Bimp(4, 3, [0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0]),
     type: "direct",
     program: null,
-    palette: pixel8,
+    palette: pixel2,
   },
   {
     id: "layer-sdfg",
     bitmap: Bimp.empty(1, 1, 0),
     type: "code",
-    palette: pixel8,
+    palette: pixel2,
     program: `return Bimp.fromTile(layers[0].width * 10, layers[0].height * 10, layers[0]);`,
   },
-  {
-    id: "layer-dfgh",
-    palette: pixel8,
-    bitmap: Bimp.empty(16, 16, 0),
-    type: "code",
-    program: `const pix = [];
-  const width = 16;
-  const height = 16;
-  for (let y=0; y < height; y++) {
-    for (let x=0; x < width; x++) {
-      pix.push((x+y)%7+1);
-    }
-  }
+  //   {
+  //     id: "layer-dfgh",
+  //     palette: pixel8,
+  //     bitmap: Bimp.empty(16, 16, 0),
+  //     type: "code",
+  //     program: `const pix = [];
+  //   const width = 16;
+  //   const height = 16;
+  //   for (let y=0; y < height; y++) {
+  //     for (let x=0; x < width; x++) {
+  //       pix.push((x+y)%7+1);
+  //     }
+  //   }
 
-  return new Bimp(width, height, pix);`,
-  },
-  {
-    id: "layer-fghj",
-    type: "code",
-    palette: pixel8,
-    bitmap: Bimp.empty(16, 16, 0),
-    program: `const width = 16;
-const height = 16;
-const pix = [];
+  //   return new Bimp(width, height, pix);`,
+  //   },
+  //   {
+  //     id: "layer-fghj",
+  //     type: "code",
+  //     palette: pixel8,
+  //     bitmap: Bimp.empty(16, 16, 0),
+  //     program: `const width = 16;
+  // const height = 16;
+  // const pix = [];
 
-for (let y=0; y<height; y++) {
-  for (let x=0; x<width; x++) {
-    let base = layers[1].pixel(x,y);
-    if (base == 0) {
-      pix.push(base);
-    } else {
-      pix.push(layers[2].pixel(x,y));
-    }
-  }
-}
+  // for (let y=0; y<height; y++) {
+  //   for (let x=0; x<width; x++) {
+  //     let base = layers[1].pixel(x,y);
+  //     if (base == 0) {
+  //       pix.push(base);
+  //     } else {
+  //       pix.push(layers[2].pixel(x,y));
+  //     }
+  //   }
+  // }
 
-return new Bimp(width, height, pix);`,
-  },
+  // return new Bimp(width, height, pix);`,
+  //   },
 ];
 
 const GLOBAL_STATE = {
   title: "untitled",
   activeTool: "brush", // tool can be move, brush, flood
-  activeColor: 1, // palette index of the currently active color
+  activeColor: 0, // palette index of the currently active color
   activeLayer: 0,
   panZoom: null,
   pixelScale: 20, // number of pixels canvas should use to show one pixel
