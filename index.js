@@ -8,61 +8,142 @@ import { actions } from "./actions";
 import { view } from "./ui/view";
 
 import { Bimp, BimpCanvas } from "./bimp";
-import { pixel2, pixel8 } from "./palette";
+import { pixel2, stitchPalette, colorP2 } from "./palette";
 
+let triangle = [
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+  0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1,
+  0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0,
+  1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0,
+  1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+  0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0,
+  0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+  0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1,
+  0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0,
+  1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0,
+  1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+  0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0,
+  0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0,
+];
 const testLayers = [
   {
     id: "layer-asdf",
-    bitmap: new Bimp(4, 3, [0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0]),
+    bitmap: new Bimp(24, 20, triangle),
     type: "direct",
     program: null,
     palette: pixel2,
   },
+  // {
+  //   id: "layer-fghj",
+  //   type: "code",
+  //   palette: pixel2,
+  //   bitmap: Bimp.empty(16, 16, 0),
+  //   program: `const width = 16;
+  // const height = 16;
+
+  // return new Bimp(layers[0].width, layers[0].height, layers[0].pixels);`,
+  // },
   {
     id: "layer-sdfg",
     bitmap: Bimp.empty(1, 1, 0),
     type: "code",
-    palette: pixel2,
-    program: `return Bimp.fromTile(layers[0].width * 10, layers[0].height * 10, layers[0]);`,
+    palette: stitchPalette,
+    program: `return Bimp.fromTile(layers[0].width * 3, layers[0].height * 4, layers[0]);`,
   },
-  //   {
-  //     id: "layer-dfgh",
-  //     palette: pixel8,
-  //     bitmap: Bimp.empty(16, 16, 0),
-  //     type: "code",
-  //     program: `const pix = [];
-  //   const width = 16;
-  //   const height = 16;
-  //   for (let y=0; y < height; y++) {
-  //     for (let x=0; x < width; x++) {
-  //       pix.push((x+y)%7+1);
-  //     }
-  //   }
+  {
+    id: "layer-fghj",
+    type: "code",
+    palette: colorP2,
+    bitmap: Bimp.empty(16, 16, 0),
+    program: `const width = 72;
+const height = 80;
+let pixels = [];
+for (let row=0; row<height; row+=2) {
+  const current = row % 4 == 0 ? 1 : 0;
+  pixels.push(...new Array(width*2).fill(current))
+}
 
-  //   return new Bimp(width, height, pix);`,
-  //   },
-  //   {
-  //     id: "layer-fghj",
-  //     type: "code",
-  //     palette: pixel8,
-  //     bitmap: Bimp.empty(16, 16, 0),
-  //     program: `const width = 16;
-  // const height = 16;
-  // const pix = [];
+return new Bimp(width, height, pixels);`,
+  },
+  {
+    id: "layer-asdfasdf",
+    type: "code",
+    palette: colorP2,
+    bitmap: Bimp.empty(16, 16, 0),
+    program: `const w = 72;
+const h = 80;
+const SLIP = 0;
+const KNIT = 1;
 
-  // for (let y=0; y<height; y++) {
-  //   for (let x=0; x<width; x++) {
-  //     let base = layers[1].pixel(x,y);
-  //     if (base == 0) {
-  //       pix.push(base);
-  //     } else {
-  //       pix.push(layers[2].pixel(x,y));
-  //     }
-  //   }
-  // }
+let pixels = new Array(w*h).fill(0);
 
-  // return new Bimp(width, height, pix);`,
-  //   },
+for (let y=h-1; y>=0; y--) {
+  for (let x=0; x<w; x++) {
+    let currentColor = layers[2].pixel(x,y);
+    if (layers[1].pixel(x,y)==SLIP) {
+      pixels[y*w+x] = currentColor;
+    } else {
+      pixels[y*w+x] = 2;
+    }
+  }
+}
+
+return new Bimp(w, h, pixels);`,
+  },
+  {
+    id: "colorpreview",
+    type: "code",
+    palette: colorP2,
+    bitmap: Bimp.empty(16, 16, 0),
+    program: `const w = 72;
+const h = 80;
+
+const NONE = 2;
+
+let pattern = layers[3];
+let width = pattern.width;
+let rows = []
+
+for (let y=0; y<h; y++) {
+  let row = [];
+  for (let x=0; x<width; x++) {
+    let color = pattern.pixel(x,y);
+    if (color!=NONE) {
+      row.push(color);
+    } else {
+      let up = 0;
+      let found = false;
+      while(!found) {
+        let test = pattern.pixel(x,y+up);
+        if (test==NONE) {
+                  up+=1;
+        }else if(test==0 || test==1) {
+          for (let i = 0; i<up; i++) {
+                      pattern.pixels[(y+i) * width + x] = test;
+          }
+          found=true;
+          row.push(test);
+          pattern.pixels[(y+up) * width + x] = NONE;
+        } else {
+          // not there
+          found = true;
+          row.push(NONE);
+        }
+      }
+    }
+  }
+  rows.push(row);
+}
+
+
+return new Bimp(width, rows.length, rows.flat());`,
+  },
 ];
 
 const GLOBAL_STATE = {

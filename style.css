@@ -148,6 +148,7 @@ button:active {
   flex-grow: 1;
   height: inherit;
   justify-content: center;
+  overflow: hidden;
 }
 
 .preview-canvas {
