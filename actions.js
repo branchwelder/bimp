@@ -165,7 +165,7 @@ return new Bimp(width, height, pixels);`,
       id: "test",
       bitmap: newBimp,
       type: "direct",
-      canvas: new BimpCanvas(newBimp, pixel8),
+      canvas: new BimpCanvas(newBimp, state.layers.at(-1).palette),
     });
 
     const updatedIndex = state.layers.length;
