@@ -17,7 +17,6 @@ class Palette {
       }
       return entry;
     });
-    // Object.freeze(this.entries);
 
     this.scale = scale ?? [1, 1];
 

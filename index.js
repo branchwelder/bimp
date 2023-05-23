@@ -10,31 +10,12 @@ import { view } from "./ui/view";
 import { Bimp, BimpCanvas } from "./bimp";
 import { pixel2, stitchPalette, colorP2 } from "./palette";
 
-let triangle = [
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-  0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1,
-  0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0,
-  1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0,
-  1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-  0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0,
-  0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1,
-  0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0,
-  1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0,
-  1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-  0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0,
-  0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0,
-];
+import { patterns } from "./patterns";
+
 const testLayers = [
   {
     id: "layer-asdf",
-    bitmap: new Bimp(24, 20, triangle),
+    bitmap: new Bimp(24, 20, patterns.triangle),
     type: "direct",
     program: null,
     palette: pixel2,
@@ -144,6 +125,20 @@ for (let y=0; y<h; y++) {
 
 return new Bimp(width, rows.length, rows.flat());`,
   },
+  {
+    id: "layer-vcbn",
+    bitmap: new Bimp(9, 9, patterns.beetle),
+    type: "direct",
+    program: null,
+    palette: colorP2,
+  },
+  {
+    id: "layer-yuio",
+    bitmap: Bimp.empty(1, 1, 0),
+    type: "code",
+    palette: colorP2,
+    program: `return Bimp.fromTile(layers[5].width * 7, layers[5].height * 7, layers[5]);`,
+  },
 ];
 
 const GLOBAL_STATE = {
@@ -220,7 +215,6 @@ function init() {
   });
 
   GLOBAL_STATE.layers = initialLayers;
-  // GLOBAL_STATE.palette = pixel8;
   renderView(GLOBAL_STATE, dispatch);
 
   canvas = document.getElementById("canvas");

@@ -23,15 +23,18 @@ export function view(state, dispatch) {
       ${choosePane(state, dispatch)}
     </div>
     <div id="right-pane">
-      <div class="control-header">Center</div>
       <div class="flex-buttons">
         <button @click=${() => dispatch("centerCanvas")}>
           <i class="fa-solid fa-arrows-to-dot fa-fw"></i>
+        </button>
+        <button @click=${() => dispatch("copyPixelArray")}>
+          <i class="fa-solid fa-copy fa-fw"></i>
         </button>
       </div>
       <div class="control-header">Palette</div>
 
       ${colorPalette(state, dispatch)}
+
       <div id="export">
         <div class="control-header">Export</div>
         <div class="flex-buttons">
