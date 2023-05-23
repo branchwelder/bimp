@@ -1,17 +1,17 @@
 import { Bitmap } from "./Bitmap";
 import { PixelPalette } from "./palettes/PixelPalette";
 
-export let state = {
+export let global_state = {
   bitmaps: {
     pattern: {
       bitmap: Bitmap.empty(10, 10, 3),
       scale: 10,
       pan: [0, 0],
+      tool: "brush",
       params: {
         width: { paramType: "number", value: 10 },
         height: { paramType: "number", value: 10 },
         palette: { paramType: "palette", value: "pixels8" },
-        tool: { paramType: "tool", value: "brush" },
       },
       forwardDeps: {
         modifiers: ["tiledRepeat"],
@@ -21,11 +21,11 @@ export let state = {
       bitmap: Bitmap.empty(10, 10, 0),
       scale: 10,
       pan: [0, 0],
+      tool: "flood",
       params: {
         width: { paramType: "number", value: 10 },
         height: { paramType: "number", value: 10 },
         palette: { paramType: "palette", value: "pixels8" },
-        tool: { paramType: "tool", value: "flood" },
       },
     },
   },

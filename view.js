@@ -32,7 +32,6 @@ const tools = {
   flood: {
     icon: "fa-fill-drip",
     hover: "Flood",
-    config: html`<label>size<input type="number" value="10" /></label>`,
   },
   rect: {
     icon: "fa-vector-square",
@@ -40,14 +39,15 @@ const tools = {
   },
 };
 
-function toolSelect(currentTool, state, onChange) {
+function toolSelect(currentTool, dispatch) {
   // Should render radio-selection to choose the active tool
   // Should also render any tool-specific options
-  console.log(currentTool);
+  // console.log(currentTool);
   return html`<div class="tool-buttons">
       ${Object.entries(tools).map(
         ([toolName, info]) =>
           html`<div
+            @click=${() => dispatch("setActiveTool", { toolName })}
             class=${classMap({
               "tool-select": true,
               selected: currentTool == toolName,
@@ -58,7 +58,7 @@ function toolSelect(currentTool, state, onChange) {
     </div>
     ${"config" in tools[currentTool]
       ? html`<div id="tool-config">${tools[currentTool].config}</div>`
-      : html`CONFIG`}`;
+      : ""}`;
 }
 
 function bitmapSelect(value, state, onChange) {
@@ -66,14 +66,6 @@ function bitmapSelect(value, state, onChange) {
 }
 
 function center(state, dispatch) {
-  // const parentBounds = this.parentNode.getBoundingClientRect();
-  // const pixelScale = Math.floor(
-  //   Math.min(
-  //     (parentBounds.height / this.state.bitmap.height) * 0.9,
-  //     (parentBounds.width / this.state.bitmap.width) * 0.9
-  //   )
-  // );
-  // return pixelScale;
   return html`<button @click=${() => dispatch({ action: "center" })}>
     center
   </button>`;
@@ -82,7 +74,6 @@ function center(state, dispatch) {
 const paramTypes = {
   number: numberSelect,
   palette: paletteSelect,
-  tool: toolSelect,
   bitmap: bitmapSelect,
 };
 
@@ -90,10 +81,15 @@ const controls = [center];
 
 function renderWorkspace(state, dispatch) {
   const active = state[state.activeEditor[0]][state.activeEditor[1]];
+  const [x, y] = active.pan;
 
   return html`<div id="control-pane">
     <div id="controls">${controls.map((ctrl) => ctrl(state, dispatch))}</div>
+
+    <div id="tools">${toolSelect(active.tool, dispatch)}</div>
+
     <div id="params">
+
       ${Object.entries(active.params).map(
         ([key, val]) =>
           html` <div>
@@ -106,7 +102,10 @@ function renderWorkspace(state, dispatch) {
     <div id="view-pane">
       <canvas id="main" width="${
         active.bitmap.width * active.scale
-      }px" height="${active.bitmap.height * active.scale}px"></canvas>
+      }px" height="${active.bitmap.height * active.scale}px"
+      style="transform: translate(${Math.floor(x)}px, ${Math.floor(
+    y
+  )}px);"></canvas>
     </div>
   </div>`;
 }

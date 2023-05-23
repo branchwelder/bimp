@@ -1,23 +1,12 @@
 import { render } from "lit-html";
-import { state } from "./state";
+import { global_state } from "./state";
 import { view } from "./view";
-import { BimpCanvas } from "./BimpCanvas";
 import { PixelPalette } from "./palettes/PixelPalette";
-
-function dispatch(obj) {
-  // obj can either be an action to carry out, or a change to the state
-  if ("action" in obj) {
-    console.log("trying to do action:", obj["action"]);
-    // should re-render here
-  } else {
-    // otherwise do state updates
-  }
-}
+import { actions } from "./actions";
+import { addPanZoom } from "./panZoom";
 
 function syncCanvas(canvas, state) {
   const active = state[state.activeEditor[0]][state.activeEditor[1]];
-  console.log(active);
-
   PixelPalette.eight().render(canvas.getContext("2d"), active.bitmap);
 }
 
@@ -27,12 +16,28 @@ function renderView(state, dispatch) {
   syncCanvas(canvas, state);
 }
 
-function updateState(state, action) {
-  return { ...state, ...action };
+function updateState(state, changes) {
+  return { ...state, ...changes };
 }
 
-function init() {
+function init(state) {
+  function dispatch(action, args) {
+    let changes = {};
+
+    try {
+      changes = actions[action](state, args);
+    } catch (e) {
+      console.log(e);
+    }
+
+    state = updateState(state, changes);
+    renderView(state, dispatch);
+  }
+
   renderView(state, dispatch);
+  const workspace = document.getElementById("view-pane");
+  addPanZoom(workspace, dispatch);
+  dispatch("center");
 }
 
-window.onload = init;
+window.onload = (e) => init(global_state);
