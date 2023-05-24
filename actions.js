@@ -271,26 +271,6 @@ return new Bimp(width, height, pixels);`,
     };
   },
 
-  applyTool: (state, pos, dispatch) => {
-    const active = state.layers[state.activeLayer];
-    const newLayers = [...state.layers];
-
-    const layer = newLayers[state.activeLayer];
-
-    if (active.type === "code") return { changes: {} };
-
-    layer.bitmap = active.bitmap[state.activeTool](pos, state.activeColor);
-
-    layer.canvas.updateOffscreenCanvas(layer.bitmap, layer.palette);
-
-    return {
-      changes: {
-        layers: newLayers,
-      },
-      postRender: () => dispatch("executeTimeout"),
-    };
-  },
-
   updateActiveBitmap: (state, { bitmap }, dispatch) => {
     const active = state.layers[state.activeLayer];
     const newLayers = [...state.layers];

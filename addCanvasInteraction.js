@@ -1,9 +1,9 @@
 import { createListener } from "./utils.js";
 
-export function canvasEvents(canvas, state, pointerdown) {
+export function canvasEvents(canvas, state, getCurrentMoveHandler) {
   const listen = createListener(canvas);
 
-  let moveHandler = null;
+  let onMove = null;
 
   function getCoordinates(e) {
     const active = state.layers[state.activeLayer];
@@ -29,26 +29,26 @@ export function canvasEvents(canvas, state, pointerdown) {
 
     // do the down handler. this calls the function of the current tool,
     // which may return a move handler
-    const onMove = pointerdown(getCoordinates(downevent));
+    const moveHandler = getCurrentMoveHandler(getCoordinates(downevent));
 
     // if there is no move handler, we don't need to do anything else, return
-    if (!onMove) return;
+    if (!moveHandler) return;
 
     // make a function that calls the move handler and save it
-    moveHandler = (moveEvent) => {
+    onMove = (moveEvent) => {
       // Call the move handler with the current coordinates
-      onMove(getCoordinates(moveEvent));
+      moveHandler(getCoordinates(moveEvent));
     };
   });
 
   listen("pointermove", "", (e) => {
     if (e.buttons == 0) {
       // If no mouse button is pressed
-      moveHandler = null;
+      onMove = null;
       return;
     }
 
     // Call the current move handler
-    if (moveHandler) moveHandler(e);
+    if (onMove) onMove(e);
   });
 }
