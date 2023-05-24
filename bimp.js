@@ -130,6 +130,41 @@ export class Bimp {
     }
     return this.draw(drawn);
   }
+
+  rect(start, end, color) {
+    let xStart = Math.min(start.x, end.x);
+    let yStart = Math.min(start.y, end.y);
+    let xEnd = Math.max(start.x, end.x);
+    let yEnd = Math.max(start.y, end.y);
+    let changes = [];
+
+    for (let y = yStart; y <= yEnd; y++) {
+      for (let x = xStart; x <= xEnd; x++) {
+        changes.push({ x, y, color });
+      }
+    }
+    return this.draw(changes);
+  }
+
+  line(from, to, color) {
+    let changes = [];
+    if (Math.abs(from.x - to.x) > Math.abs(from.y - to.y)) {
+      if (from.x > to.x) [from, to] = [to, from];
+      let slope = (to.y - from.y) / (to.x - from.x);
+      for (let { x, y } = from; x <= to.x; x++) {
+        changes.push({ x, y: Math.round(y), color });
+        y += slope;
+      }
+    } else {
+      if (from.y > to.y) [from, to] = [to, from];
+      let slope = (to.x - from.x) / (to.y - from.y);
+      for (let { x, y } = from; y <= to.y; y++) {
+        changes.push({ x: Math.round(x), y, color });
+        x += slope;
+      }
+    }
+    return this.draw(changes);
+  }
 }
 
 export class BimpDirect extends Bimp {

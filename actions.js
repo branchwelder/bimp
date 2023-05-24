@@ -291,6 +291,25 @@ return new Bimp(width, height, pixels);`,
     };
   },
 
+  updateActiveBitmap: (state, { bitmap }, dispatch) => {
+    const active = state.layers[state.activeLayer];
+    const newLayers = [...state.layers];
+
+    const layer = newLayers[state.activeLayer];
+
+    if (active.type === "code") return { changes: {} };
+
+    layer.bitmap = bitmap;
+    layer.canvas.updateOffscreenCanvas(layer.bitmap, layer.palette);
+
+    return {
+      changes: {
+        layers: newLayers,
+      },
+      postRender: () => dispatch("executeTimeout"),
+    };
+  },
+
   snapshot: (state) => {
     // TODO fix history with recent changes
     console.log("SNAP");

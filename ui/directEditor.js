@@ -81,10 +81,24 @@ function toolbar(state, dispatch) {
         <i class="fa-solid fa-fill-drip"></i>
       </div>
       <div
-        class="tool-select ${state.activeTool == "move"
+        class="tool-select ${state.activeTool == "rect"
           ? "selected"
           : "not-selected"}"
-        @click=${() => dispatch("setActiveTool", "move")}>
+        @click=${() => dispatch("setActiveTool", "rect")}>
+        <i class="fa-solid fa-vector-square"></i>
+      </div>
+      <div
+        class="tool-select ${state.activeTool == "line"
+          ? "selected"
+          : "not-selected"}"
+        @click=${() => dispatch("setActiveTool", "line")}>
+        <i class="fa-solid fa-minus"></i>
+      </div>
+      <div
+        class="tool-select ${state.activeTool == "pan"
+          ? "selected"
+          : "not-selected"}"
+        @click=${() => dispatch("setActiveTool", "pan")}>
         <i class="fa-solid fa-up-down-left-right"></i>
       </div>
     </div>

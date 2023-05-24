@@ -1,7 +1,7 @@
 import { EditorView } from "@codemirror/view";
 import { render } from "lit-html";
 
-import { addCanvasInteraction } from "./addCanvasInteraction";
+import { canvasEvents } from "./addCanvasInteraction";
 import { addPanZoom } from "./addPanZoom";
 
 import { actions } from "./actions";
@@ -11,6 +11,8 @@ import { Bimp, BimpCanvas } from "./bimp";
 import { pixel2, stitchPalette, colorP2 } from "./palette";
 
 import { patterns } from "./patterns";
+
+import { brush, flood, rect, line, pan } from "./tools";
 
 const testLayers = [
   {
@@ -202,6 +204,14 @@ async function dispatch(action, args, cb) {
   }
 }
 
+const tools = {
+  brush,
+  flood,
+  rect,
+  line,
+  pan,
+};
+
 function init() {
   const initialLayers = testLayers.map((layer) => {
     return {
@@ -223,7 +233,16 @@ function init() {
     GLOBAL_STATE
   );
 
-  addCanvasInteraction(canvas, GLOBAL_STATE, dispatch);
+  // Tools functions return a move handler that is fed
+  // the current canvas / pixel coordinates
+  const onDown = (pos) => {
+    let tool = tools[GLOBAL_STATE.activeTool];
+    let toolMove = tool(pos, GLOBAL_STATE, dispatch);
+    if (toolMove) return (pos) => toolMove(pos, GLOBAL_STATE);
+  };
+
+  canvasEvents(canvas, GLOBAL_STATE, onDown);
+
   dispatch("centerCanvas");
   dispatch("execute");
 }

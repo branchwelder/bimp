@@ -1,62 +1,54 @@
 import { createListener } from "./utils.js";
 
-export function addCanvasInteraction(canvas, state, dispatch) {
+export function canvasEvents(canvas, state, pointerdown) {
   const listen = createListener(canvas);
 
-  let mousedown = false;
-  let pos = { x: 0, y: 0 };
+  let moveHandler = null;
 
-  function getPixelCoordinates(e) {
+  function getCoordinates(e) {
     const active = state.layers[state.activeLayer];
 
     let rect = canvas.getBoundingClientRect();
     return {
-      x: Math.floor(
+      pX: Math.floor(
         (e.clientX - rect.left) /
           state.panZoom.scale() /
           active.palette.scale[0]
       ),
-      y: Math.floor(
+      pY: Math.floor(
         (e.clientY - rect.top) / state.panZoom.scale() / active.palette.scale[1]
       ),
+      cX: e.clientX,
+      cY: e.clientY,
     };
   }
 
-  function begin() {
-    mousedown = true;
-  }
+  listen("pointerdown", "", (downevent) => {
+    // if it is not a left click, return
+    if (downevent.button != 0) return;
 
-  function end() {
-    mousedown = false;
-  }
+    // do the down handler. this calls the function of the current tool,
+    // which may return a move handler
+    const onMove = pointerdown(getCoordinates(downevent));
 
-  listen("pointerdown", "", (e) => {
-    if (
-      state.activeTool === "move" ||
-      state.layers[state.activeLayer].type === "code"
-    )
-      return;
-    begin();
-    pos = getPixelCoordinates(e);
-    dispatch("applyTool", pos);
+    // if there is no move handler, we don't need to do anything else, return
+    if (!onMove) return;
+
+    // make a function that calls the move handler and save it
+    moveHandler = (moveEvent) => {
+      // Call the move handler with the current coordinates
+      onMove(getCoordinates(moveEvent));
+    };
   });
 
   listen("pointermove", "", (e) => {
-    if (!mousedown) return;
-    let newPos = getPixelCoordinates(e);
+    if (e.buttons == 0) {
+      // If no mouse button is pressed
+      moveHandler = null;
+      return;
+    }
 
-    if (newPos.x == pos.x && newPos.y == pos.y) return; // return if still inside pixel
-    pos = newPos;
-    if (pos.x < 0 || pos.y < 0) return; // return if out of bounds
-
-    dispatch("applyTool", pos);
-  });
-
-  listen("pointerleave", "", (e) => {
-    if (mousedown) end();
-  });
-
-  listen("pointerup", "", (e) => {
-    if (mousedown) end();
+    // Call the current move handler
+    if (moveHandler) moveHandler(e);
   });
 }
