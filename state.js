@@ -1,5 +1,32 @@
 import { Bitmap } from "./Bitmap";
 import { PixelPalette } from "./palettes/PixelPalette";
+import { v4 as uuidv4 } from "uuid";
+
+export class EditorState {
+  constructor({ width = 16, height = 16, palette = "pixels8" }) {
+    this.id = uuidv4();
+    this.width = width;
+    this.height = height;
+    this.palette = palette;
+    this.pixels = new Array(width * height).fill(color);
+    this.scale = 10;
+    this.history = [];
+    this.tool = "brush";
+    this.params = ["width", "height", "palette"];
+  }
+  // return {
+  //   bitmap: Bitmap.empty(10, 10, 3),
+  //   scale: 10,
+  //   pan: [0, 0],
+  //   tool: "brush",
+  //   params: {
+  //     width: { paramType: "number", value: 10 },
+  //     height: { paramType: "number", value: 10 },
+  //     palette: { paramType: "palette", value: "pixels8" },
+  //   },
+  //   forwardDeps: {},
+  // };
+}
 
 export let global_state = {
   bitmaps: {
@@ -21,7 +48,7 @@ export let global_state = {
       bitmap: Bitmap.empty(10, 10, 0),
       scale: 10,
       pan: [0, 0],
-      tool: "flood",
+      tool: "brush",
       params: {
         width: { paramType: "number", value: 10 },
         height: { paramType: "number", value: 10 },

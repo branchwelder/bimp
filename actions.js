@@ -1,3 +1,5 @@
+import { getActive } from "./utils";
+
 export const actions = {
   center,
   setActiveTool,
@@ -5,14 +7,6 @@ export const actions = {
 
 function updateNested(state, prop0, prop1, val) {
   return { ...state, [prop0]: { ...state[prop0], [prop1]: val } };
-}
-
-function getActive(state) {
-  return {
-    component: { ...state[state.activeEditor[0]][state.activeEditor[1]] },
-    componentSet: state.activeEditor[0],
-    componentID: state.activeEditor[1],
-  };
 }
 
 function center(state) {
