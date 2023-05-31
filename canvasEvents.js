@@ -1,18 +1,15 @@
-import { createListener, getActive } from "./utils.js";
+import { createListener } from "./utils.js";
 
-export function canvasEvents(canvas, state, getCurrentMoveHandler) {
+export function canvasEvents(canvas, bitmap, getCurrentMoveHandler) {
   const listen = createListener(canvas);
-  console.log(canvas.dataset);
 
   let onMove = null;
 
   function getCoordinates(e) {
-    const { component, componentSet, componentID } = getActive(state);
-
     let rect = canvas.getBoundingClientRect();
     return {
-      pX: Math.floor((e.clientX - rect.left) / component.scale),
-      pY: Math.floor((e.clientY - rect.top) / component.scale),
+      pX: Math.floor((e.clientX - rect.left) / bitmap.scale),
+      pY: Math.floor((e.clientY - rect.top) / bitmap.scale),
       cX: e.clientX,
       cY: e.clientY,
     };

@@ -2,25 +2,25 @@ function getActiveBitmap(state) {
   return state.layers[state.activeLayer].bitmap;
 }
 
-export function brush(pos, state, dispatch) {
+export function brush(pos, editorState, dispatch) {
   let currentPos = pos;
 
-  function brushPixel(newPos, state) {
+  function brushPixel(newPos, editorState) {
     if (newPos.pX == currentPos.pX && newPos.pY == currentPos.pY) return;
-    const updated = getActiveBitmap(state).line(
+    const updated = editorState.bitmap.line(
       { x: currentPos.pX, y: currentPos.pY },
       { x: newPos.pX, y: newPos.pY },
-      state.activeColor
+      editorState.color
     );
 
     currentPos = newPos;
 
-    dispatch("updateActiveBitmap", {
+    dispatch("udpateEditorState", {
       bitmap: updated,
     });
   }
 
-  brushPixel(pos, state);
+  brushPixel(pos, editorState);
   return brushPixel;
 }
 
@@ -34,7 +34,7 @@ export function flood(pos, state, dispatch) {
     dispatch("updateActiveBitmap", {
       bitmap: getActiveBitmap(state).flood(
         { x: currentPos.pX, y: currentPos.pY },
-        state.activeColor
+        state.color
       ),
     });
   }
@@ -57,7 +57,7 @@ export function rect(start, state, dispatch) {
       bitmap: bimp.rect(
         { x: start.pX, y: start.pY },
         { x: currentPos.pX, y: currentPos.pY },
-        state.activeColor
+        state.color
       ),
     });
   }
@@ -77,7 +77,7 @@ export function line(start, state, dispatch) {
       bitmap: bimp.line(
         { x: start.pX, y: start.pY },
         { x: currentPos.pX, y: currentPos.pY },
-        state.activeColor
+        state.color
       ),
     });
   }

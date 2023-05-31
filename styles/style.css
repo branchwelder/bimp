@@ -11,6 +11,7 @@
   --light0: #dadada;
   --light4: #b5b5b5;
   --accent: #644e64;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 html,
@@ -22,7 +23,43 @@ body {
   display: flex;
 }
 
-#app-container {
+#sidebar {
+  max-width: 20rem;
+  background-color: #2b2b2b;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  user-select: none;
+}
+
+.sidebar-option {
+  aspect-ratio: 1;
+  cursor: grab;
+}
+
+#layout-container {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.editor-pane {
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pane {
+  overflow: hidden;
+}
+
+.palette-entry {
+  height: 50px;
+}
+
+/* #app-container {
   flex: 1;
   display: flex;
 }
@@ -45,11 +82,11 @@ body {
 
 #control-pane {
   padding: 0.5rem;
-}
+} */
 
 /* PARAM PANE */
 
-#params {
+/* #params {
   display: grid;
   grid-template-columns: auto auto;
   gap: 1rem;
@@ -62,16 +99,16 @@ body {
 
 .param-name {
   text-align: end;
-}
+} */
 
 /* CONTROLS */
 
-#controls {
+/* #controls {
   border-bottom: 1px solid var(--light4);
-}
+} */
 
 /* TOOL SELECT BUTTONS */
-
+/*
 #tools {
   border-bottom: 1px solid var(--light4);
   padding: 0.5rem 0;
@@ -103,10 +140,10 @@ body {
 
 .tool-select i {
   margin: auto;
-}
+} */
 
 /* VIEW PANE */
-
+/*
 #view-pane {
   flex: 1;
   flex-basis: 75%;
@@ -119,4 +156,4 @@ body {
 
 #view-pane > canvas {
   box-shadow: 0 0 5px black;
-}
+} */

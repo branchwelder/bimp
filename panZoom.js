@@ -29,7 +29,7 @@ export function addPanZoom(el) {
   }
 
   function updateTransformGroups() {
-    const transformGroups = document.querySelectorAll("canvas");
+    const transformGroups = el.querySelectorAll("canvas");
     for (const group of transformGroups) {
       setTransform(group);
     }
@@ -43,9 +43,6 @@ export function addPanZoom(el) {
   }
 
   listen("pointerdown", "", (e) => {
-    // if (state.activeTool !== "move" && e.target.id !== "canvas-container")
-    //   return;
-
     if (e.shiftKey || e.button === 2) {
       return;
     }

@@ -2,35 +2,34 @@ export class BimpCanvas {
   constructor(config) {
     this.bitmap = config.bitmap;
     this.palette = config.palette;
-    this.pixelScale = config.pixelScale;
+    this.scale = config.scale;
 
     this.dom = this.buildDom();
 
-    this.updatePixelScale();
+    this.updateScale();
     this.renderBitmap();
   }
 
   buildDom() {
     const canvasEl = document.createElement("canvas");
-    canvasEl.id = "bitmap-canvas";
     canvasEl.transformOrigin = `0px 0px`;
     return canvasEl;
   }
 
-  updatePixelScale() {
-    this.dom.height = this.bitmap.height * this.pixelScale;
-    this.dom.width = this.bitmap.width * this.pixelScale;
+  updateScale() {
+    this.dom.height = this.bitmap.height * this.scale;
+    this.dom.width = this.bitmap.width * this.scale;
   }
 
   syncState(state) {
     if (this.bitmap != state.bitmap) {
       this.bitmap = state.bitmap;
     }
-    if (this.pixelScale != state.pixelScale) {
-      this.pixelScale = state.pixelScale;
+    if (this.scale != state.scale) {
+      this.scale = state.scale;
     }
 
-    this.updatePixelScale();
+    this.updateScale();
     this.renderBitmap();
 
     const [x, y] = state.pan;

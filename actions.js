@@ -9,10 +9,11 @@ function updateNested(state, prop0, prop1, val) {
   return { ...state, [prop0]: { ...state[prop0], [prop1]: val } };
 }
 
-function center(state) {
+function center(state, bitmapID) {
   // Computes the pixel scale for the active editor
-  const { component, componentSet, componentID } = getActive(state);
-  const canvas = document.getElementById("main");
+  // const { component, componentSet, componentID } = getActive(state);
+
+  const canvas = document.getElementById(bitmapID);
   const parentBounds = canvas.parentNode.getBoundingClientRect();
 
   const scale = Math.floor(

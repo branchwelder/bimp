@@ -1,40 +1,41 @@
 import { Bitmap } from "./Bitmap";
 import { PixelPalette } from "./palettes/PixelPalette";
-import { v4 as uuidv4 } from "uuid";
 
-export class EditorState {
-  constructor({ width = 16, height = 16, palette = "pixels8" }) {
-    this.id = uuidv4();
-    this.width = width;
-    this.height = height;
-    this.palette = palette;
-    this.pixels = new Array(width * height).fill(color);
-    this.scale = 10;
-    this.history = [];
-    this.tool = "brush";
-    this.params = ["width", "height", "palette"];
-  }
-  // return {
-  //   bitmap: Bitmap.empty(10, 10, 3),
-  //   scale: 10,
-  //   pan: [0, 0],
-  //   tool: "brush",
-  //   params: {
-  //     width: { paramType: "number", value: 10 },
-  //     height: { paramType: "number", value: 10 },
-  //     palette: { paramType: "palette", value: "pixels8" },
-  //   },
-  //   forwardDeps: {},
-  // };
-}
+// export class EditorState {
+//   constructor({ width = 16, height = 16, palette = "pixels8" }) {
+//     this.id = uuidv4();
+//     this.width = width;
+//     this.height = height;
+//     this.palette = palette;
+//     this.pixels = new Array(width * height).fill(color);
+//     this.scale = 10;
+//     this.history = [];
+//     this.tool = "brush";
+//     this.params = ["width", "height", "palette"];
+//   }
+//   // return {
+//   //   bitmap: Bitmap.empty(10, 10, 3),
+//   //   scale: 10,
+//   //   pan: [0, 0],
+//   //   tool: "brush",
+//   //   params: {
+//   //     width: { paramType: "number", value: 10 },
+//   //     height: { paramType: "number", value: 10 },
+//   //     palette: { paramType: "palette", value: "pixels8" },
+//   //   },
+//   //   forwardDeps: {},
+//   // };
+// }
 
 export let global_state = {
   bitmaps: {
-    pattern: {
+    tiling: {
       bitmap: Bitmap.empty(10, 10, 3),
       scale: 10,
       pan: [0, 0],
       tool: "brush",
+      palette: PixelPalette.eight(),
+      color: 1,
       params: {
         width: { paramType: "number", value: 10 },
         height: { paramType: "number", value: 10 },
@@ -44,11 +45,28 @@ export let global_state = {
         modifiers: ["tiledRepeat"],
       },
     },
-    tile: {
-      bitmap: Bitmap.empty(10, 10, 0),
+    tile4: {
+      bitmap: Bitmap.empty(10, 10, 2),
       scale: 10,
       pan: [0, 0],
       tool: "brush",
+      color: 1,
+      palette: PixelPalette.eight(),
+
+      params: {
+        width: { paramType: "number", value: 10 },
+        height: { paramType: "number", value: 10 },
+        palette: { paramType: "palette", value: "pixels8" },
+      },
+    },
+    tile8: {
+      bitmap: Bitmap.empty(10, 10, 1),
+      scale: 10,
+      pan: [0, 0],
+      tool: "brush",
+      palette: PixelPalette.eight(),
+
+      color: 1,
       params: {
         width: { paramType: "number", value: 10 },
         height: { paramType: "number", value: 10 },
@@ -86,5 +104,8 @@ for (let y = 0; y < height; y++) {
 return new Bitmap(width, height, tiled);`,
     },
   },
-  activeEditor: ["bitmaps", "tile"],
+  layout: {
+    sizes: [50, 50],
+    children: [{ sizes: [50, 50], children: ["tile4", "tile8"] }, "tiling"],
+  },
 };

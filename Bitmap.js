@@ -12,20 +12,6 @@ export class Bitmap {
     return new Bitmap(width, height, pixels);
   }
 
-  // static fromTile(width, height, tile) {
-  //   // tile should be a Bitmap
-
-  //   let tiled = [];
-
-  //   for (let y = 0; y < height; y++) {
-  //     for (let x = 0; x < width; x++) {
-  //       tiled.push(tile.pixel(x % tile.width, y % tile.height));
-  //     }
-  //   }
-
-  //   return new Bitmap(width, height, tiled);
-  // }
-
   resize(width, height) {
     let resized = [];
     for (let y = 0; y < height; y++) {
@@ -105,6 +91,26 @@ export class Bitmap {
     for (let y = yStart; y <= yEnd; y++) {
       for (let x = xStart; x <= xEnd; x++) {
         changes.push({ x, y, color });
+      }
+    }
+    return this.apply(changes);
+  }
+
+  line(from, to, color) {
+    let changes = [];
+    if (Math.abs(from.x - to.x) > Math.abs(from.y - to.y)) {
+      if (from.x > to.x) [from, to] = [to, from];
+      let slope = (to.y - from.y) / (to.x - from.x);
+      for (let { x, y } = from; x <= to.x; x++) {
+        changes.push({ x, y: Math.round(y), color });
+        y += slope;
+      }
+    } else {
+      if (from.y > to.y) [from, to] = [to, from];
+      let slope = (to.x - from.x) / (to.y - from.y);
+      for (let { x, y } = from; y <= to.y; y++) {
+        changes.push({ x: Math.round(x), y, color });
+        x += slope;
       }
     }
     return this.apply(changes);
